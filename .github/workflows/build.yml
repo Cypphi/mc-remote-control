@@ -13,7 +13,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'azul'
+          distribution: 'zulu'
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
