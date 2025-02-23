@@ -15,8 +15,11 @@
 	"icon": "assets/mcrc/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
+		"client": [
 			"dev.cypphi.mcrc.MinecraftRemoteControl"
+		],
+		"modmenu": [
+			"dev.cypphi.mcrc.integration.ModMenuEntrypoint"
 		]
 	},
 	"mixins": [
@@ -27,5 +30,8 @@
 		"minecraft": "~1.21.4",
 		"java": ">=21",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": ">=13.0.0"
 	}
 }

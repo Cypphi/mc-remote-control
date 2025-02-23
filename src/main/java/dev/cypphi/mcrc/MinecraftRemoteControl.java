@@ -1,24 +1,48 @@
 package dev.cypphi.mcrc;
 
-import net.fabricmc.api.ModInitializer;
+import dev.cypphi.mcrc.config.Config;
+import dev.cypphi.mcrc.discord.event.DiscordEventListener;
+import dev.cypphi.mcrc.discord.event.JDAEventListener;
+import dev.cypphi.mcrc.discord.utils.DiscordMessageUtils;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.fabricmc.api.ClientModInitializer;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MinecraftRemoteControl implements ModInitializer {
+public class MinecraftRemoteControl implements ClientModInitializer {
 	public static final String MOD_ID = "mcrc";
+	public static final String MOD_VERSION = "0.0.1";
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID.toUpperCase());
 
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	private static JDA jda;
 
 	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+	public void onInitializeClient() {
+		LOGGER.info("Initializing {} {}...", MOD_ID, MOD_VERSION);
 
-		LOGGER.info("Hello Fabric world!");
+		Config.load();
+
+		try {
+			jda = JDABuilder.createDefault(Config.getInstance().getDiscordBotToken(), GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
+					.build()
+					.awaitReady();
+
+			jda.addEventListener(new JDAEventListener(jda));
+			jda.addEventListener(new DiscordEventListener());
+
+			LOGGER.info("Discord bot initialized successfully");
+
+			DiscordMessageUtils.sendToDiscord("Discord bot is online.");
+		} catch (Exception e) {
+			LOGGER.error("Failed to initialize Discord bot.");
+		}
+	}
+
+	public static JDA getJDA() {
+		return jda;
 	}
 }
