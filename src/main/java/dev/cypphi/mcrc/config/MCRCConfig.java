@@ -35,7 +35,7 @@ public class MCRCConfig {
     @SerialEntry
     public int test = 5;
 
-    public static ConfigCategory getConfigCategory() {
+    public static ConfigCategory getMainCategory() {
         return ConfigCategory.createBuilder()
                 .name(Text.of("Remote Control"))
 
@@ -50,6 +50,23 @@ public class MCRCConfig {
                         .controller(BooleanControllerBuilder::create)
                         .build())
 
+                .option(Option.<Integer>createBuilder()
+                        .name(Text.of("Integer Value"))
+                        .description(OptionDescription.of(Text.of("An example integer value.")))
+                        .binding(
+                                5,
+                                () -> HANDLER.instance().test,
+                                value -> HANDLER.instance().test = value
+                        )
+                        .controller(IntegerFieldControllerBuilder::create)
+                        .build())
+
+                .build();
+    }
+
+    public static ConfigCategory getCredentialsCategory() {
+        return ConfigCategory.createBuilder()
+                .name(Text.of("CREDENTIALS (DO NOT SHARE)"))
                 .option(Option.<String>createBuilder()
                         .name(Text.of("Discord Bot token"))
                         .description(OptionDescription.of(Text.of("The Discord bot token. DO NOT SHARE THIS WITH ANYONE ELSE!")))
@@ -71,19 +88,6 @@ public class MCRCConfig {
                         )
                         .controller(StringControllerBuilder::create)
                         .build())
-
-                .option(Option.<Integer>createBuilder()
-                        .name(Text.of("Integer Value"))
-                        .description(OptionDescription.of(Text.of("An example integer value.")))
-                        .binding(
-                                5,
-                                () -> HANDLER.instance().test,
-                                value -> HANDLER.instance().test = value
-                        )
-                        .controller(IntegerFieldControllerBuilder::create)
-                        .build())
-
                 .build();
     }
-
 }
