@@ -5,7 +5,5 @@
 	"injectors": {
 		"defaultRequire": 1
 	},
-	"client": [
-		"TitleScreenMixin"
-	]
+	"client": []
 }

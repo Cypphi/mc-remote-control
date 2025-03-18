@@ -17,19 +17,21 @@
 	"entrypoints": {
 		"client": [
 			"dev.cypphi.mcrc.MinecraftRemoteControl"
+		],
+		"modmenu": [
+			"dev.cypphi.mcrc.config.ModMenuEntrypoint"
 		]
 	},
 	"mixins": [
 		"mcrc.mixins.json"
 	],
+	"accessWidener": "mcrc.accesswidener",
 	"depends": {
 		"fabricloader": ">=0.16.10",
 		"minecraft": "~1.21.4",
 		"java": ">=21",
 		"fabric-api": "*",
-		"yet_another_config_lib_v3": ">=3.6.2"
-	},
-	"suggests": {
-		"modmenu": ">=13.0.0"
+		"modmenu": ">=13.0.0",
+		"yet_another_config_lib_v3": ">=3.6.5"
 	}
 }
