@@ -10,7 +10,8 @@ public class ModMenuEntrypoint implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> YetAnotherConfigLib.createBuilder()
                 .title(Text.of("Remote Control"))
-                .category(MCRCConfig.getConfigCategory())
+                .category(MCRCConfig.getMainCategory())
+                .category(MCRCConfig.getCredentialsCategory())
                 .save(MCRCConfig.HANDLER::save)
                 .build()
                 .generateScreen(parent);
