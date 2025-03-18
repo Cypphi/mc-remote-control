@@ -25,7 +25,7 @@ import java.util.jar.JarFile;
 
 public class MinecraftRemoteControl implements ClientModInitializer {
 	public static final String MOD_ID = "mcrc";
-	public static final String MOD_VERSION = "0.0.1";
+	public static final String MOD_VERSION = "1.0.0";
 	public static final Path MOD_DIR = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID.toUpperCase());
 
