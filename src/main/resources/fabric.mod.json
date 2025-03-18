@@ -17,9 +17,6 @@
 	"entrypoints": {
 		"client": [
 			"dev.cypphi.mcrc.MinecraftRemoteControl"
-		],
-		"modmenu": [
-			"dev.cypphi.mcrc.integration.ModMenuEntrypoint"
 		]
 	},
 	"mixins": [
