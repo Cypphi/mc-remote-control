@@ -5,7 +5,6 @@ import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
-import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -27,13 +26,16 @@ public class MCRCConfig {
     public boolean autoStart = false;
 
     @SerialEntry
+    public boolean useEmbeds = true;
+
+    @SerialEntry
+    public boolean useEmbedColors = true;
+
+    @SerialEntry
     public String botToken = "";
 
     @SerialEntry
     public String discordChannel = "";
-
-    @SerialEntry
-    public int test = 5;
 
     public static ConfigCategory getMainCategory() {
         return ConfigCategory.createBuilder()
@@ -50,17 +52,28 @@ public class MCRCConfig {
                         .controller(BooleanControllerBuilder::create)
                         .build())
 
-                .option(Option.<Integer>createBuilder()
-                        .name(Text.of("Integer Value"))
-                        .description(OptionDescription.of(Text.of("An example integer value.")))
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Use embeds"))
+                        .description(OptionDescription.of(Text.of("If the bot should use embeds instead of plain text.")))
                         .binding(
-                                5,
-                                () -> HANDLER.instance().test,
-                                value -> HANDLER.instance().test = value
+                                false,
+                                () -> HANDLER.instance().useEmbeds,
+                                value -> HANDLER.instance().useEmbeds = value
                         )
-                        .controller(IntegerFieldControllerBuilder::create)
+                        .controller(BooleanControllerBuilder::create)
                         .build())
 
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Embed colors"))
+                        .description(OptionDescription.of(Text.of("Whether to give embeds a color.")))
+                        .binding(
+                                false,
+                                () -> HANDLER.instance().useEmbedColors,
+                                value -> HANDLER.instance().useEmbedColors = value
+                        )
+                        .available(HANDLER.instance().useEmbeds)
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
                 .build();
     }
 
