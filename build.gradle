@@ -28,7 +28,7 @@ dependencies {
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 	modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}")
 
-	include implementation("net.dv8tion:JDA:5.3.0")
+	include implementation("net.dv8tion:JDA:${project.jda_version}")
 }
 
 processResources {
