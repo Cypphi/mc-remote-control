@@ -24,7 +24,7 @@ public class CommandRegistry {
     public void handle(SlashCommandInteractionEvent event) {
         SlashCommand command = commands.get(event.getName());
         if (command == null) {
-            event.reply("Unknown command.").setEphemeral(true).queue();
+            event.reply("Unknown command.").queue();
             return;
         }
 
@@ -35,6 +35,10 @@ public class CommandRegistry {
         List<CommandData> data = new ArrayList<>();
         commands.values().forEach(command -> data.add(command.asCommandData()));
         return data;
+    }
+
+    public List<SlashCommand> listRegisteredCommands() {
+        return new ArrayList<>(commands.values());
     }
 
     public void syncCommands(JDA jda, String guildId) {
