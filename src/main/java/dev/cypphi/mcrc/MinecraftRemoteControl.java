@@ -23,7 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MinecraftRemoteControl implements ClientModInitializer {
-	public static final String MOD_ID = "mcrc";
+	public static final String MOD_VERSION = FabricLoader.getInstance()
+			.getModContainer(MOD_ID)
+			.map(container -> container.getMetadata().getVersion().getFriendlyString())
+			.orElse("dev");
 	public static final String MOD_VERSION = "1.0.0";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID.toUpperCase());
 	public static final MinecraftClient mc = MinecraftClient.getInstance();
