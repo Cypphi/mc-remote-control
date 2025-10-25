@@ -13,6 +13,7 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Formatting;
 
 public class MCRCConfig {
     public static ConfigClassHandler<MCRCConfig> HANDLER = ConfigClassHandler.createBuilder(MCRCConfig.class)
@@ -33,10 +34,25 @@ public class MCRCConfig {
     public boolean useEmbedColors = true;
 
     @SerialEntry
+    public boolean allowPublicCommands = false;
+
+    @SerialEntry
     public boolean remoteViewEnabled = false;
 
     @SerialEntry
     public int remoteViewFps = 30;
+
+    @SerialEntry
+    public String remoteViewBindAddress = "0.0.0.0";
+
+    @SerialEntry
+    public int remoteViewPort = 47823;
+
+    @SerialEntry
+    public String remoteViewPublicBaseUrl = "";
+
+    @SerialEntry
+    public int remoteViewLinkTimeoutSeconds = 120;
 
     @SerialEntry
     public String botToken = "";
@@ -46,6 +62,9 @@ public class MCRCConfig {
 
     @SerialEntry
     public String commandGuildId = "";
+
+    @SerialEntry
+    public String allowedUserId = "";
 
     public static ConfigCategory getMainCategory() {
         return ConfigCategory.createBuilder()
@@ -86,6 +105,26 @@ public class MCRCConfig {
                         .build())
 
                 .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Allow Public Commands"))
+                        .description(OptionDescription.of(
+                                Text.literal("DON'T ENABLE IF YOU DON'T WANT OTHER PEOPLE USING THE BOT.")
+                                        .formatted(Formatting.RED)))
+                        .binding(
+                                false,
+                                () -> HANDLER.instance().allowPublicCommands,
+                                value -> HANDLER.instance().allowPublicCommands = value
+                        )
+                        .controller(option -> BooleanControllerBuilder.create(option).coloured(true))
+                        .build())
+
+                .build();
+    }
+
+    public static ConfigCategory getRemoteViewCategory() {
+        return ConfigCategory.createBuilder()
+                .name(Text.of("Remote View"))
+
+                .option(Option.<Boolean>createBuilder()
                         .name(Text.of("Enable Remote View"))
                         .description(OptionDescription.of(Text.of("Allow the bot to stream your client to authenticated viewers via the /remoteview command.")))
                         .binding(
@@ -107,6 +146,58 @@ public class MCRCConfig {
                         .controller(option -> IntegerSliderControllerBuilder.create(option)
                                 .range(5, 60)
                                 .step(5))
+                        .available(HANDLER.instance().remoteViewEnabled)
+                        .build())
+
+                .option(Option.<String>createBuilder()
+                        .name(Text.of("Remote View Bind Address"))
+                        .description(OptionDescription.of(Text.of("IP address/interface the embedded stream server should bind to (advanced users only).")))
+                        .binding(
+                                "0.0.0.0",
+                                () -> HANDLER.instance().remoteViewBindAddress,
+                                value -> HANDLER.instance().remoteViewBindAddress = value
+                        )
+                        .controller(StringControllerBuilder::create)
+                        .available(HANDLER.instance().remoteViewEnabled)
+                        .build())
+
+                .option(Option.<Integer>createBuilder()
+                        .name(Text.of("Remote View Port"))
+                        .description(OptionDescription.of(Text.of("TCP port for the stream HTTP server.")))
+                        .binding(
+                                47823,
+                                () -> HANDLER.instance().remoteViewPort,
+                                value -> HANDLER.instance().remoteViewPort = value
+                        )
+                        .controller(option -> IntegerSliderControllerBuilder.create(option)
+                                .range(1024, 65535)
+                                .step(1))
+                        .available(HANDLER.instance().remoteViewEnabled)
+                        .build())
+
+                .option(Option.<Integer>createBuilder()
+                        .name(Text.of("Link Timeout (seconds)"))
+                        .description(OptionDescription.of(Text.of("How long viewer invite links stay valid before they self-destruct.")))
+                        .binding(
+                                120,
+                                () -> HANDLER.instance().remoteViewLinkTimeoutSeconds,
+                                value -> HANDLER.instance().remoteViewLinkTimeoutSeconds = value
+                        )
+                        .controller(option -> IntegerSliderControllerBuilder.create(option)
+                                .range(30, 300)
+                                .step(10))
+                        .available(HANDLER.instance().remoteViewEnabled)
+                        .build())
+
+                .option(Option.<String>createBuilder()
+                        .name(Text.of("Remote View Public URL"))
+                        .description(OptionDescription.of(Text.of("Optional https:// URL to share when exposing Remote View over the internet (VPN/reverse proxy). Leave blank for LAN auto-detect.")))
+                        .binding(
+                                "",
+                                () -> HANDLER.instance().remoteViewPublicBaseUrl,
+                                value -> HANDLER.instance().remoteViewPublicBaseUrl = value
+                        )
+                        .controller(StringControllerBuilder::create)
                         .available(HANDLER.instance().remoteViewEnabled)
                         .build())
                 .build();
@@ -133,6 +224,17 @@ public class MCRCConfig {
                                 "CHANNEL ID",
                                 () -> HANDLER.instance().discordChannel,
                                 value -> HANDLER.instance().discordChannel = value
+                        )
+                        .controller(StringControllerBuilder::create)
+                        .build())
+
+                .option(Option.<String>createBuilder()
+                        .name(Text.of("Allowed Discord User ID"))
+                        .description(OptionDescription.of(Text.of("Only this Discord user can run bot commands when public commands are disabled.")))
+                        .binding(
+                                "USER ID",
+                                () -> HANDLER.instance().allowedUserId,
+                                value -> HANDLER.instance().allowedUserId = value
                         )
                         .controller(StringControllerBuilder::create)
                         .build())
