@@ -51,6 +51,12 @@ public final class ChatLogUtil {
         if (indicator == null) {
             return "chat";
         }
-        return indicator.icon().name().toLowerCase(Locale.ROOT);
+
+        MessageIndicator.Icon icon = indicator.icon();
+        if (icon == null) {
+            return "chat";
+        }
+
+        return icon.name().toLowerCase(Locale.ROOT);
     }
 }
