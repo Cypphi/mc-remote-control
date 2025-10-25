@@ -4,10 +4,14 @@ import dev.cypphi.mcrc.config.MCRCConfig;
 import dev.cypphi.mcrc.discord.bot.DiscordBot;
 import dev.cypphi.mcrc.discord.bot.DiscordBotBuilder;
 import dev.cypphi.mcrc.discord.command.CommandRegistry;
-import dev.cypphi.mcrc.discord.command.commands.TestCommand;
-import dev.cypphi.mcrc.discord.command.commands.RemoteViewCommand;
+import dev.cypphi.mcrc.discord.command.commands.*;
 import dev.cypphi.mcrc.discord.event.BotReadyListener;
 import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
+import dev.cypphi.mcrc.remoteview.RemoteViewCoordinator;
+import dev.cypphi.mcrc.remoteview.RemoteViewSessionManager;
+import dev.cypphi.mcrc.remoteview.capture.RemoteViewCaptureService;
+import dev.cypphi.mcrc.remoteview.signaling.RemoteViewSignalingServer;
+import dev.cypphi.mcrc.remoteview.stream.MjpegRemoteViewPublisher;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -24,6 +28,16 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 
 	private static JDA jda;
 	private static DiscordBot discordBot;
+	private static final RemoteViewSessionManager remoteViewSessionManager = new RemoteViewSessionManager();
+	private static final RemoteViewCaptureService remoteViewCaptureService = new RemoteViewCaptureService();
+	private static final MjpegRemoteViewPublisher remoteViewStreamPublisher = new MjpegRemoteViewPublisher();
+	private static final RemoteViewCoordinator remoteViewCoordinator =
+			new RemoteViewCoordinator(remoteViewCaptureService, remoteViewStreamPublisher, () -> MCRCConfig.HANDLER.instance());
+	private static RemoteViewSignalingServer remoteViewSignalingServer;
+
+	static {
+		remoteViewSessionManager.setLifecycleListener(remoteViewCoordinator);
+	}
 
 	@Override
 	public void onInitializeClient() {
@@ -32,17 +46,22 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 		MCRCConfig.HANDLER.load();
 
 		MCRCConfig config = MCRCConfig.HANDLER.instance();
+		remoteViewSessionManager.setSessionTtlSeconds(config.remoteViewLinkTimeoutSeconds);
 
-		if (config.autoStart) {
-			if (config.botToken == null || config.botToken.isBlank()) {
-				LOGGER.warn("Discord bot token is not configured; skipping bot startup.");
-				return;
+			if (config.remoteViewEnabled) {
+				ensureSignalingServer(config);
 			}
 
+			if (config.autoStart) {
+				if (config.botToken == null || config.botToken.isBlank()) {
+					LOGGER.warn("Discord bot token is not configured; skipping bot startup.");
+					return;
+				}
+
 			try {
-				CommandRegistry commandRegistry = new CommandRegistry()
-						.register(new TestCommand())
-						.register(new RemoteViewCommand());
+                CommandRegistry commandRegistry = new CommandRegistry()
+                        .register(new RemoteViewCommand())
+                        .register(new PingCommand());
 
 				discordBot = new DiscordBotBuilder()
 						.withToken(config.botToken)
@@ -73,5 +92,33 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 
 	public static DiscordBot getDiscordBot() {
 		return discordBot;
+	}
+
+	public static RemoteViewSessionManager getRemoteViewSessionManager() {
+		return remoteViewSessionManager;
+	}
+
+	public static RemoteViewCaptureService getRemoteViewCaptureService() {
+		return remoteViewCaptureService;
+	}
+
+	public static RemoteViewCoordinator getRemoteViewCoordinator() {
+		return remoteViewCoordinator;
+	}
+
+	private static void ensureSignalingServer(MCRCConfig config) {
+        if (remoteViewSignalingServer == null) {
+            remoteViewSignalingServer = new RemoteViewSignalingServer(remoteViewSessionManager, remoteViewStreamPublisher);
+        }
+
+		if (remoteViewSignalingServer.getBoundAddress().isPresent()) {
+			return;
+		}
+
+		try {
+			remoteViewSignalingServer.start(config.remoteViewBindAddress, config.remoteViewPort);
+		} catch (Exception e) {
+			LOGGER.error("Failed to start Remote View signaling server: {}", e.getMessage());
+		}
 	}
 }
