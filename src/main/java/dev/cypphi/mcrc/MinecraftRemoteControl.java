@@ -62,10 +62,11 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 
 			try {
                 CommandRegistry commandRegistry = new CommandRegistry()
+                        .register(new HelpCommand())
                         .register(new MessageCommand())
+                        .register(new PingCommand())
                         .register(new RemoteViewCommand())
-                        .register(new ScreenshotCommand())
-                        .register(new PingCommand());
+                        .register(new ScreenshotCommand());
 
 				discordBot = new DiscordBotBuilder()
 						.withToken(config.botToken)
