@@ -57,3 +57,14 @@ jar {
 		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 }
+
+def platformTag = "fabric-${project.minecraft_version}"
+def releaseVersion = "${project.mod_version}-${platformTag}"
+
+tasks.named("remapJar") {
+	archiveFileName.set("${project.archives_base_name}-${releaseVersion}.jar")
+}
+
+tasks.named("remapSourcesJar") {
+	archiveFileName.set("${project.archives_base_name}-${releaseVersion}-sources.jar")
+}
