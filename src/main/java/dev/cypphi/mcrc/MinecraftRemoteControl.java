@@ -58,10 +58,11 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 				if (config.botToken == null || config.botToken.isBlank()) {
 					LOGGER.warn("Discord bot token is not configured; skipping bot startup.");
 					return;
-				}
+		}
 
 			try {
                 CommandRegistry commandRegistry = new CommandRegistry()
+                        .register(new MessageCommand())
                         .register(new RemoteViewCommand())
                         .register(new ScreenshotCommand())
                         .register(new PingCommand());
