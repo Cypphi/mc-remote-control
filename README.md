@@ -17,9 +17,9 @@ Control and view your Minecraft client through Discord.
 ## Supported versions
 Feel free to request specific versions to be added :) (Join my support Discord.)
 
-| MCRC Version | Minecraft version |
-|--------------|-------------------|
-| 1.0.0        | 1.21.4            |
+| MCRC Version                                                            | Minecraft version |
+|-------------------------------------------------------------------------|-------------------|
+| [1.0.0](https://github.com/Cypphi/mc-remote-control/releases/tag/1.0.0) | 1.21.4 & 1.21.10  |                                                                 | 1.21.10           |
 
 
 ## Usage

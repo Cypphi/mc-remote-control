@@ -8,8 +8,8 @@
 		"Cypphi"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://mcrc.cypphi.dev",
+		"sources": "https://github.com/Cypphi/mc-remote-control"
 	},
 	"license": "GPL-3.0",
 	"icon": "assets/mcrc/icon.png",
@@ -27,11 +27,11 @@
 	],
 	"accessWidener": "mcrc.accesswidener",
 	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "~1.21.4",
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.21.10",
 		"java": ">=21",
-		"fabric-api": "*",
-		"modmenu": ">=13.0.0",
-		"yet_another_config_lib_v3": ">=3.6.5"
+		"fabric-api": ">=0.134.1+1.21.10",
+		"modmenu": ">=16.0.0-rc.1",
+		"yet_another_config_lib_v3": ">=3.8.0+1.21.9"
 	}
 }
