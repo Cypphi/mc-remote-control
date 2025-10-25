@@ -151,7 +151,12 @@ public class RemoteViewCaptureService {
             return Optional.empty();
         }
 
-        NativeImage screenshot = ScreenshotRecorder.takeScreenshot(framebuffer);
+        AtomicReference<NativeImage> screenshotRef = new AtomicReference<>();
+        ScreenshotRecorder.takeScreenshot(framebuffer, screenshotRef::set);
+        NativeImage screenshot = screenshotRef.get();
+        if (screenshot == null) {
+            return Optional.empty();
+        }
         return Optional.of(new CapturedFrame(System.nanoTime(), width, height, screenshot));
     }
 
