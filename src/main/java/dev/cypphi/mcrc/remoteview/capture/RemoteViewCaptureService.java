@@ -18,7 +18,6 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -79,36 +78,49 @@ public class RemoteViewCaptureService {
             return;
         }
 
-        client.execute(() -> {
-            try {
-                Optional<RemoteViewFrame> frame = captureFrame(client);
-                frame.ifPresent(consumer::accept);
-            } catch (Exception e) {
-                LOGGER.error("Failed to capture frame for Remote View", e);
-            } finally {
-                captureInFlight.set(false);
-            }
-        });
+        try {
+            client.execute(() -> captureFrameAsync(client, consumer, () -> captureInFlight.set(false)));
+        } catch (Exception e) {
+            captureInFlight.set(false);
+            LOGGER.error("Failed to schedule Remote View capture", e);
+        }
     }
 
-    private Optional<RemoteViewFrame> captureFrame(MinecraftClient client) {
-        Framebuffer framebuffer = client.getFramebuffer();
-        int width = framebuffer.textureWidth;
-        int height = framebuffer.textureHeight;
-        if (width <= 0 || height <= 0) {
-            return Optional.empty();
-        }
-
-        NativeImage screenshot = ScreenshotRecorder.takeScreenshot(framebuffer);
+    private void captureFrameAsync(MinecraftClient client, FrameConsumer consumer, Runnable onComplete) {
         try {
-            BufferedImage bufferedImage = convertToBufferedImage(screenshot);
-            byte[] jpeg = encodeToJpeg(bufferedImage);
-            if (jpeg.length == 0) {
-                return Optional.empty();
+            Framebuffer framebuffer = client.getFramebuffer();
+            if (framebuffer == null) {
+                onComplete.run();
+                return;
             }
-            return Optional.of(new RemoteViewFrame(System.nanoTime(), width, height, jpeg));
-        } finally {
-            screenshot.close();
+
+            int textureWidth = framebuffer.textureWidth;
+            int textureHeight = framebuffer.textureHeight;
+            if (textureWidth <= 0 || textureHeight <= 0) {
+                onComplete.run();
+                return;
+            }
+
+            ScreenshotRecorder.takeScreenshot(framebuffer, nativeImage -> {
+                try {
+                    int width = nativeImage.getWidth();
+                    int height = nativeImage.getHeight();
+                    BufferedImage bufferedImage = convertToBufferedImage(nativeImage);
+                    byte[] jpeg = encodeToJpeg(bufferedImage);
+                    if (jpeg.length == 0) {
+                        return;
+                    }
+                    consumer.accept(new RemoteViewFrame(System.nanoTime(), width, height, jpeg));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to process Remote View frame", e);
+                } finally {
+                    nativeImage.close();
+                    onComplete.run();
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.error("Failed to capture frame for Remote View", e);
+            onComplete.run();
         }
     }
 

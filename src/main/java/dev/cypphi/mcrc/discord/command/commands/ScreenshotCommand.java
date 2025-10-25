@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
 
@@ -85,30 +84,35 @@ public class ScreenshotCommand implements SlashCommand {
             return future;
         }
 
-        client.execute(() -> {
-            try {
-                Framebuffer framebuffer = client.getFramebuffer();
-                if (framebuffer == null) {
-                    future.completeExceptionally(new IllegalStateException("No active framebuffer to capture."));
-                    return;
-                }
+        client.execute(() -> captureScreenshotAsync(client, future));
+        return future;
+    }
 
-                NativeImage nativeImage = ScreenshotRecorder.takeScreenshot(framebuffer);
-                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+    private void captureScreenshotAsync(MinecraftClient client, CompletableFuture<ScreenshotResult> future) {
+        try {
+            Framebuffer framebuffer = client.getFramebuffer();
+            if (framebuffer == null) {
+                future.completeExceptionally(new IllegalStateException("No active framebuffer to capture."));
+                return;
+            }
+
+            ScreenshotRecorder.takeScreenshot(framebuffer, nativeImage -> {
+                try {
+                    int width = nativeImage.getWidth();
+                    int height = nativeImage.getHeight();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     BufferedImage bufferedImage = convertToBufferedImage(nativeImage);
                     ImageIO.write(bufferedImage, "png", baos);
-                    future.complete(new ScreenshotResult(baos.toByteArray(), nativeImage.getWidth(), nativeImage.getHeight()));
-                } catch (IOException e) {
+                    future.complete(new ScreenshotResult(baos.toByteArray(), width, height));
+                } catch (Exception e) {
                     future.completeExceptionally(e);
                 } finally {
                     nativeImage.close();
                 }
-            } catch (Exception e) {
-                future.completeExceptionally(e);
-            }
-        });
-
-        return future;
+            });
+        } catch (Exception e) {
+            future.completeExceptionally(e);
+        }
     }
 
     private BufferedImage convertToBufferedImage(NativeImage nativeImage) {
