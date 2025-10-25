@@ -19,7 +19,7 @@ Feel free to request specific versions to be added :) (Join my support Discord.)
 
 | MCRC Version                                                            | Minecraft version |
 |-------------------------------------------------------------------------|-------------------|
-| [1.0.0](https://github.com/Cypphi/mc-remote-control/releases/tag/1.0.0) | 1.21.4 & 1.21.10  |
+| [1.0.1](https://github.com/Cypphi/mc-remote-control/releases/tag/1.0.1) | 1.21.4 & 1.21.10  |
 
 
 ## Usage
@@ -52,6 +52,7 @@ Here's a simple guide for how to use this mod.
 
 ### 4. Relaunch
 - Relaunch. Have fun :)
+- Run /help through the Discord bot to view a list of commands you can use.
 
 ## Contributing
 - Contributions are welcome!
