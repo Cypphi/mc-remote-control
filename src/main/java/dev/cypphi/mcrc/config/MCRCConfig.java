@@ -5,6 +5,7 @@ import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
+import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -32,10 +33,19 @@ public class MCRCConfig {
     public boolean useEmbedColors = true;
 
     @SerialEntry
+    public boolean remoteViewEnabled = false;
+
+    @SerialEntry
+    public int remoteViewFps = 30;
+
+    @SerialEntry
     public String botToken = "";
 
     @SerialEntry
     public String discordChannel = "";
+
+    @SerialEntry
+    public String commandGuildId = "";
 
     public static ConfigCategory getMainCategory() {
         return ConfigCategory.createBuilder()
@@ -74,6 +84,31 @@ public class MCRCConfig {
                         .available(HANDLER.instance().useEmbeds)
                         .controller(BooleanControllerBuilder::create)
                         .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Enable Remote View"))
+                        .description(OptionDescription.of(Text.of("Allow the bot to stream your client to authenticated viewers via the /remoteview command.")))
+                        .binding(
+                                false,
+                                () -> HANDLER.instance().remoteViewEnabled,
+                                value -> HANDLER.instance().remoteViewEnabled = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Integer>createBuilder()
+                        .name(Text.of("Remote View FPS"))
+                        .description(OptionDescription.of(Text.of("Target FPS for Remote View captures. Higher values impact performance more.")))
+                        .binding(
+                                30,
+                                () -> HANDLER.instance().remoteViewFps,
+                                value -> HANDLER.instance().remoteViewFps = value
+                        )
+                        .controller(option -> IntegerSliderControllerBuilder.create(option)
+                                .range(5, 60)
+                                .step(5))
+                        .available(HANDLER.instance().remoteViewEnabled)
+                        .build())
                 .build();
     }
 
@@ -98,6 +133,17 @@ public class MCRCConfig {
                                 "CHANNEL ID",
                                 () -> HANDLER.instance().discordChannel,
                                 value -> HANDLER.instance().discordChannel = value
+                        )
+                        .controller(StringControllerBuilder::create)
+                        .build())
+
+                .option(Option.<String>createBuilder()
+                        .name(Text.of("Discord Guild ID"))
+                        .description(OptionDescription.of(Text.of("Optional guild/server ID used to push slash commands instantly. Leave empty to register globally (may take up to an hour).")))
+                        .binding(
+                                "GUILD ID",
+                                () -> HANDLER.instance().commandGuildId,
+                                value -> HANDLER.instance().commandGuildId = value
                         )
                         .controller(StringControllerBuilder::create)
                         .build())

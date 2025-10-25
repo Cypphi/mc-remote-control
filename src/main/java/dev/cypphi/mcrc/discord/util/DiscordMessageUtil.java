@@ -2,13 +2,25 @@ package dev.cypphi.mcrc.discord.util;
 
 import dev.cypphi.mcrc.MinecraftRemoteControl;
 import dev.cypphi.mcrc.config.MCRCConfig;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public class DiscordMessageUtil {
     public static void sendMessage(String message, String type) {
+        JDA jda = MinecraftRemoteControl.getJDA();
+        if (jda == null) {
+            MinecraftRemoteControl.LOGGER.warn("Cannot send message: Discord bot is not connected.");
+            return;
+        }
+
         String channelID = MCRCConfig.HANDLER.instance().discordChannel;
-        TextChannel channel = MinecraftRemoteControl.getJDA().getTextChannelById(channelID);
+        if (channelID == null || channelID.isBlank()) {
+            MinecraftRemoteControl.LOGGER.warn("Cannot send message: Discord channel ID is not configured.");
+            return;
+        }
+
+        TextChannel channel = jda.getTextChannelById(channelID.trim());
 
         if (channel != null) {
             channel.sendMessage(MessageFormatterManager.format(message, type)).queue();
@@ -18,8 +30,19 @@ public class DiscordMessageUtil {
     }
 
     public static void editMessage(String messageId, String newContent, String type) {
+        JDA jda = MinecraftRemoteControl.getJDA();
+        if (jda == null) {
+            MinecraftRemoteControl.LOGGER.warn("Cannot edit message: Discord bot is not connected.");
+            return;
+        }
+
         String channelID = MCRCConfig.HANDLER.instance().discordChannel;
-        TextChannel channel = MinecraftRemoteControl.getJDA().getTextChannelById(channelID);
+        if (channelID == null || channelID.isBlank()) {
+            MinecraftRemoteControl.LOGGER.warn("Cannot edit message: Discord channel ID is not configured.");
+            return;
+        }
+
+        TextChannel channel = jda.getTextChannelById(channelID.trim());
 
         if (channel != null) {
             channel.retrieveMessageById(messageId).queue(
