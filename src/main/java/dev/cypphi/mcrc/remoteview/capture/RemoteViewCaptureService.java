@@ -19,18 +19,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RemoteViewCaptureService {
     private static final Logger LOGGER = LoggerFactory.getLogger("mcrc-remoteview-capture");
     private final ScheduledExecutorService executor;
+    private final ExecutorService encoderExecutor;
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean captureInFlight = new AtomicBoolean(false);
+    private final AtomicBoolean encoderBusy = new AtomicBoolean(false);
+    private final AtomicReference<CapturedFrame> nextPendingFrame = new AtomicReference<>();
     private ScheduledFuture<?> captureTask;
     private BufferedImage reusableBufferedImage;
     private byte[] reusableBgrBuffer;
@@ -39,12 +44,19 @@ public class RemoteViewCaptureService {
     private final ByteArrayOutputStream jpegBuffer = new ByteArrayOutputStream(131_072);
 
     public RemoteViewCaptureService() {
-        ThreadFactory factory = runnable -> {
+        ThreadFactory captureFactory = runnable -> {
             Thread thread = new Thread(runnable, "mcrc-remoteview-capture");
             thread.setDaemon(true);
             return thread;
         };
-        executor = Executors.newSingleThreadScheduledExecutor(factory);
+        executor = Executors.newSingleThreadScheduledExecutor(captureFactory);
+
+        ThreadFactory encoderFactory = runnable -> {
+            Thread thread = new Thread(runnable, "mcrc-remoteview-encoder");
+            thread.setDaemon(true);
+            return thread;
+        };
+        encoderExecutor = Executors.newSingleThreadExecutor(encoderFactory);
     }
 
     public synchronized void startCapture(int targetFps, FrameConsumer consumer) {
@@ -81,8 +93,8 @@ public class RemoteViewCaptureService {
 
         client.execute(() -> {
             try {
-                Optional<RemoteViewFrame> frame = captureFrame(client);
-                frame.ifPresent(consumer::accept);
+                Optional<CapturedFrame> frame = captureNativeImage(client);
+                frame.ifPresent(captured -> submitForEncoding(captured, consumer));
             } catch (Exception e) {
                 LOGGER.error("Failed to capture frame for Remote View", e);
             } finally {
@@ -91,7 +103,47 @@ public class RemoteViewCaptureService {
         });
     }
 
-    private Optional<RemoteViewFrame> captureFrame(MinecraftClient client) {
+    private void submitForEncoding(CapturedFrame frame, FrameConsumer consumer) {
+        if (encoderBusy.compareAndSet(false, true)) {
+            encoderExecutor.execute(() -> encodeLoop(frame, consumer));
+            return;
+        }
+
+        CapturedFrame previous = nextPendingFrame.getAndSet(frame);
+        if (previous != null) {
+            previous.image().close();
+        }
+    }
+
+    private void encodeLoop(CapturedFrame initialFrame, FrameConsumer consumer) {
+        CapturedFrame frame = initialFrame;
+        try {
+            while (frame != null) {
+                try {
+                    RemoteViewFrame encoded = encodeCapturedFrame(frame);
+                    if (encoded != null) {
+                        consumer.accept(encoded);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Failed to encode frame for Remote View", e);
+                } finally {
+                    frame.image().close();
+                }
+
+                frame = nextPendingFrame.getAndSet(null);
+            }
+        } finally {
+            encoderBusy.set(false);
+            CapturedFrame pending = nextPendingFrame.getAndSet(null);
+            if (pending != null && encoderBusy.compareAndSet(false, true)) {
+                encodeLoop(pending, consumer);
+            } else if (pending != null) {
+                submitForEncoding(pending, consumer);
+            }
+        }
+    }
+
+    private Optional<CapturedFrame> captureNativeImage(MinecraftClient client) {
         Framebuffer framebuffer = client.getFramebuffer();
         int width = framebuffer.textureWidth;
         int height = framebuffer.textureHeight;
@@ -100,16 +152,16 @@ public class RemoteViewCaptureService {
         }
 
         NativeImage screenshot = ScreenshotRecorder.takeScreenshot(framebuffer);
-        try {
-            BufferedImage bufferedImage = convertToBufferedImage(screenshot);
-            byte[] jpeg = encodeToJpeg(bufferedImage);
-            if (jpeg.length == 0) {
-                return Optional.empty();
-            }
-            return Optional.of(new RemoteViewFrame(System.nanoTime(), width, height, jpeg));
-        } finally {
-            screenshot.close();
+        return Optional.of(new CapturedFrame(System.nanoTime(), width, height, screenshot));
+    }
+
+    private RemoteViewFrame encodeCapturedFrame(CapturedFrame frame) {
+        BufferedImage bufferedImage = convertToBufferedImage(frame.image());
+        byte[] jpeg = encodeToJpeg(bufferedImage);
+        if (jpeg.length == 0) {
+            return null;
         }
+        return new RemoteViewFrame(frame.timestampNanos(), frame.width(), frame.height(), jpeg);
     }
 
     private BufferedImage convertToBufferedImage(NativeImage nativeImage) {
@@ -169,11 +221,13 @@ public class RemoteViewCaptureService {
             captureTask = null;
             LOGGER.info("Remote View capture stopped.");
         }
+        releasePendingFrame();
     }
 
     public void shutdown() {
         stopCapture();
         executor.shutdownNow();
+        encoderExecutor.shutdownNow();
         disposeJpegWriter();
     }
 
@@ -206,5 +260,14 @@ public class RemoteViewCaptureService {
 
     public interface FrameConsumer {
         void accept(RemoteViewFrame frame);
+    }
+
+    private record CapturedFrame(long timestampNanos, int width, int height, NativeImage image) {}
+
+    private void releasePendingFrame() {
+        CapturedFrame pending = nextPendingFrame.getAndSet(null);
+        if (pending != null) {
+            pending.image().close();
+        }
     }
 }
