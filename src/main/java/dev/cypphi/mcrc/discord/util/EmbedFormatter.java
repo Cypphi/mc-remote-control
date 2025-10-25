@@ -4,6 +4,7 @@ import dev.cypphi.mcrc.config.MCRCConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
+import java.awt.Color;
 import java.time.Instant;
 
 public class EmbedFormatter implements IDiscordMessageFormatter {
@@ -18,8 +19,11 @@ public class EmbedFormatter implements IDiscordMessageFormatter {
         builder.setDescription(spec.description());
 
         boolean useColors = MCRCConfig.HANDLER.instance().useEmbedColors;
-        if (useColors && spec.kind() != null) {
-            builder.setColor(spec.kind().color());
+        Color embedColor = spec.overrideColor() != null
+                ? spec.overrideColor()
+                : (spec.kind() != null ? spec.kind().color() : null);
+        if (useColors && embedColor != null) {
+            builder.setColor(embedColor);
         }
 
         for (DiscordMessageSpec.Field field : spec.fields()) {
