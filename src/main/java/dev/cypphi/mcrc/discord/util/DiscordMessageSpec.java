@@ -1,5 +1,6 @@
 package dev.cypphi.mcrc.discord.util;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +12,7 @@ public final class DiscordMessageSpec {
     private final String footer;
     private final boolean timestamp;
     private final String thumbnailUrl;
+    private final Color overrideColor;
     private final String imageUrl;
     private final List<Field> fields;
 
@@ -21,6 +23,7 @@ public final class DiscordMessageSpec {
         this.footer = builder.footer;
         this.timestamp = builder.timestamp;
         this.thumbnailUrl = builder.thumbnailUrl;
+        this.overrideColor = builder.overrideColor;
         this.imageUrl = builder.imageUrl;
         this.fields = List.copyOf(builder.fields);
     }
@@ -49,6 +52,10 @@ public final class DiscordMessageSpec {
         return thumbnailUrl;
     }
 
+    public Color overrideColor() {
+        return overrideColor;
+    }
+
     public String imageUrl() {
         return imageUrl;
     }
@@ -75,6 +82,7 @@ public final class DiscordMessageSpec {
         private String footer;
         private boolean timestamp;
         private String thumbnailUrl;
+        private Color overrideColor;
         private String imageUrl;
         private final List<Field> fields = new ArrayList<>();
 
@@ -114,6 +122,11 @@ public final class DiscordMessageSpec {
 
         public Builder imageUrl(String imageUrl) {
             this.imageUrl = imageUrl;
+            return this;
+        }
+
+        public Builder colorOverride(Color color) {
+            this.overrideColor = color;
             return this;
         }
 

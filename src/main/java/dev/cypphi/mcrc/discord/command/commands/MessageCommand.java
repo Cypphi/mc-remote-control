@@ -5,6 +5,7 @@ import dev.cypphi.mcrc.discord.command.SlashCommand;
 import dev.cypphi.mcrc.discord.util.DiscordMessageKind;
 import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
 import dev.cypphi.mcrc.discord.util.MessageFormatterManager;
+import dev.cypphi.mcrc.discord.util.chat.ChatLogUtil;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -110,6 +111,8 @@ public class MessageCommand implements SlashCommand {
                 String description = result.command()
                         ? "Command sent successfully."
                         : "Message relayed to chat.";
+
+                ChatLogUtil.logOutgoing(content, result.command());
                 MessageEditData payload = MessageEditData.fromCreateData(
                         MessageFormatterManager.format(
                                 DiscordMessageSpec.builder()
