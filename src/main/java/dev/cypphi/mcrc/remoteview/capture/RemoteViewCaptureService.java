@@ -27,6 +27,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class RemoteViewCaptureService {
     private static final Logger LOGGER = LoggerFactory.getLogger("mcrc-remoteview-capture");
@@ -93,11 +94,15 @@ public class RemoteViewCaptureService {
 
         client.execute(() -> {
             try {
-                Optional<CapturedFrame> frame = captureNativeImage(client);
-                frame.ifPresent(captured -> submitForEncoding(captured, consumer));
+                captureNativeImage(client, maybeFrame -> {
+                    try {
+                        maybeFrame.ifPresent(captured -> submitForEncoding(captured, consumer));
+                    } finally {
+                        captureInFlight.set(false);
+                    }
+                });
             } catch (Exception e) {
                 LOGGER.error("Failed to capture frame for Remote View", e);
-            } finally {
                 captureInFlight.set(false);
             }
         });
@@ -143,21 +148,27 @@ public class RemoteViewCaptureService {
         }
     }
 
-    private Optional<CapturedFrame> captureNativeImage(MinecraftClient client) {
+    private void captureNativeImage(MinecraftClient client, Consumer<Optional<CapturedFrame>> callback) {
         Framebuffer framebuffer = client.getFramebuffer();
+        if (framebuffer == null) {
+            callback.accept(Optional.empty());
+            return;
+        }
+
         int width = framebuffer.textureWidth;
         int height = framebuffer.textureHeight;
         if (width <= 0 || height <= 0) {
-            return Optional.empty();
+            callback.accept(Optional.empty());
+            return;
         }
 
-        AtomicReference<NativeImage> screenshotRef = new AtomicReference<>();
-        ScreenshotRecorder.takeScreenshot(framebuffer, screenshotRef::set);
-        NativeImage screenshot = screenshotRef.get();
-        if (screenshot == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new CapturedFrame(System.nanoTime(), width, height, screenshot));
+        ScreenshotRecorder.takeScreenshot(framebuffer, nativeImage -> {
+            if (nativeImage == null) {
+                callback.accept(Optional.empty());
+                return;
+            }
+            callback.accept(Optional.of(new CapturedFrame(System.nanoTime(), width, height, nativeImage)));
+        });
     }
 
     private RemoteViewFrame encodeCapturedFrame(CapturedFrame frame) {
