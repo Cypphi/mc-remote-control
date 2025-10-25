@@ -5,9 +5,17 @@ import dev.cypphi.mcrc.config.MCRCConfig;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 public class DiscordMessageUtil {
     public static void sendMessage(String message, String type) {
+        sendMessage(DiscordMessageSpec.builder()
+                .description(message)
+                .kind(DiscordMessageKind.of(type))
+                .build());
+    }
+
+    public static void sendMessage(DiscordMessageSpec spec) {
         JDA jda = MinecraftRemoteControl.getJDA();
         if (jda == null) {
             MinecraftRemoteControl.LOGGER.warn("Cannot send message: Discord bot is not connected.");
@@ -23,13 +31,21 @@ public class DiscordMessageUtil {
         TextChannel channel = jda.getTextChannelById(channelID.trim());
 
         if (channel != null) {
-            channel.sendMessage(MessageFormatterManager.format(message, type)).queue();
+            MessageCreateData payload = MessageFormatterManager.format(spec);
+            channel.sendMessage(payload).queue();
         } else {
             MinecraftRemoteControl.LOGGER.error("Failed to send message: Discord channel not found (ID: {})", channelID);
         }
     }
 
     public static void editMessage(String messageId, String newContent, String type) {
+        editMessage(messageId, DiscordMessageSpec.builder()
+                .description(newContent)
+                .kind(DiscordMessageKind.of(type))
+                .build());
+    }
+
+    public static void editMessage(String messageId, DiscordMessageSpec spec) {
         JDA jda = MinecraftRemoteControl.getJDA();
         if (jda == null) {
             MinecraftRemoteControl.LOGGER.warn("Cannot edit message: Discord bot is not connected.");
@@ -53,13 +69,10 @@ public class DiscordMessageUtil {
                             return;
                         }
 
-                        MessageCreateData formatted = MessageFormatterManager.format(newContent, type);
+                        MessageCreateData formatted = MessageFormatterManager.format(spec);
+                        MessageEditData editData = MessageEditData.fromCreateData(formatted);
 
-                        if (formatted.getEmbeds().isEmpty()) {
-                            message.editMessage(formatted.getContent()).queue();
-                        } else {
-                            message.editMessageEmbeds(formatted.getEmbeds()).queue();
-                        }
+                        message.editMessage(editData).queue();
                     },
                     e -> MinecraftRemoteControl.LOGGER.error("Failed to retrieve message (ID: {}): {}", messageId, e.getMessage())
             );

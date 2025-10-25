@@ -6,6 +6,8 @@ import dev.cypphi.mcrc.discord.bot.DiscordBotBuilder;
 import dev.cypphi.mcrc.discord.command.CommandRegistry;
 import dev.cypphi.mcrc.discord.command.commands.*;
 import dev.cypphi.mcrc.discord.event.BotReadyListener;
+import dev.cypphi.mcrc.discord.util.DiscordMessageKind;
+import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
 import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
 import dev.cypphi.mcrc.remoteview.RemoteViewCoordinator;
 import dev.cypphi.mcrc.remoteview.RemoteViewSessionManager;
@@ -61,6 +63,7 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 			try {
                 CommandRegistry commandRegistry = new CommandRegistry()
                         .register(new RemoteViewCommand())
+                        .register(new ScreenshotCommand())
                         .register(new PingCommand());
 
 				discordBot = new DiscordBotBuilder()
@@ -74,7 +77,13 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 
 				jda = discordBot.startAndAwaitReady();
 				LOGGER.info("Discord bot initialized successfully");
-				DiscordMessageUtil.sendMessage("Discord bot is online.", "ready");
+                DiscordMessageUtil.sendMessage(
+                        DiscordMessageSpec.builder()
+                                .title("MC Remote Control")
+                                .description("Discord bot is online.")
+                                .kind(DiscordMessageKind.SUCCESS)
+                                .timestamp(true)
+                                .build());
 			} catch (InvalidTokenException e) {
 				LOGGER.error("Invalid token provided. Please enter a valid token.");
 			} catch (InterruptedException e) {
