@@ -1,0 +1,30 @@
+name: Feature Request
+description: Suggest an idea or enhancement for MC Remote Control
+labels: [enhancement]
+body:
+  - type: checkboxes
+    attributes:
+      label: Pre-Flight
+      options:
+        - label: This is realistic for the project and relevant to MC Remote Control.
+          required: true
+        - label: I confirmed the mod does not already include this feature.
+          required: true
+        - label: I searched existing issues and pull requests.
+          required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Short summary of the feature or change you want.
+      placeholder: Describe the feature in a few sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Additional context, mockups, use-cases, etc.
+      placeholder: Explain why this should be added and any constraints.
+    validations:
+      required: false
