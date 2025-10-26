@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ClientPlayNetworkHandlerMixin {
     @Inject(method = "onChatMessage", at = @At("HEAD"))
     private void mcrc$rememberChatSender(ChatMessageS2CPacket packet, CallbackInfo ci) {
-        IncomingMessageTracker.record(packet.signature(), packet.sender());
+        IncomingMessageTracker.record(packet.signature(), packet.sender(), packet.unsignedContent());
     }
 }

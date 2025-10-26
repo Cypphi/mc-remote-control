@@ -1,6 +1,7 @@
 package dev.cypphi.mcrc.discord.util.chat;
 
 import net.minecraft.network.message.MessageSignatureData;
+import net.minecraft.text.Text;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -13,36 +14,80 @@ import java.util.UUID;
  */
 public final class IncomingMessageTracker {
     private static final int MAX_ENTRIES = 128;
-
     private static final Map<SignatureKey, UUID> SENDERS = new LinkedHashMap<>(MAX_ENTRIES, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<SignatureKey, UUID> eldest) {
             return size() > MAX_ENTRIES;
         }
     };
+    private static final Map<String, UUID> UNSIGNED = new LinkedHashMap<>(MAX_ENTRIES, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, UUID> eldest) {
+            return size() > MAX_ENTRIES;
+        }
+    };
 
     private IncomingMessageTracker() {}
 
-    public static void record(MessageSignatureData signature, UUID sender) {
-        if (signature == null || sender == null) {
+    public static void record(MessageSignatureData signature, UUID sender, Text rawContent) {
+        if (sender == null) {
             return;
         }
 
-        SignatureKey key = SignatureKey.of(signature);
-        synchronized (SENDERS) {
-            SENDERS.put(key, sender);
+        if (signature != null) {
+            SignatureKey key = SignatureKey.of(signature);
+            synchronized (SENDERS) {
+                SENDERS.put(key, sender);
+            }
+            return;
         }
+
+        storeFallback(sender, rawContent);
     }
 
-    public static UUID consume(MessageSignatureData signature) {
-        if (signature == null) {
+    public static UUID consume(MessageSignatureData signature, Text rawContent) {
+        if (signature != null) {
+            SignatureKey key = SignatureKey.of(signature);
+            synchronized (SENDERS) {
+                UUID sender = SENDERS.remove(key);
+                if (sender != null) {
+                    return sender;
+                }
+            }
+        }
+
+        if (rawContent == null) {
             return null;
         }
 
-        SignatureKey key = SignatureKey.of(signature);
-        synchronized (SENDERS) {
-            return SENDERS.remove(key);
+        return consumeFallback(rawContent);
+    }
+
+    private static void storeFallback(UUID sender, Text rawContent) {
+        if (rawContent == null) {
+            return;
         }
+
+        String normalized = normalize(rawContent);
+        if (normalized.isEmpty()) {
+            return;
+        }
+
+        UNSIGNED.put(normalized, sender);
+    }
+
+    private static UUID consumeFallback(Text rawContent) {
+        String normalized = normalize(rawContent);
+        if (normalized.isEmpty()) {
+            return null;
+        }
+
+        return UNSIGNED.remove(normalized);
+    }
+
+    private static String normalize(Text rawContent) {
+        ChatFormattingUtil.ChatAnalysis analysis = ChatFormattingUtil.analyze(rawContent);
+        return analysis.content().strip();
     }
 
     private record SignatureKey(byte[] data) {
