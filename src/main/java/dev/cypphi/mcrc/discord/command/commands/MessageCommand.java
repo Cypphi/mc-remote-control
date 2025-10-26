@@ -112,7 +112,9 @@ public class MessageCommand implements SlashCommand {
                         ? "Command sent successfully."
                         : "Message relayed to chat.";
 
-                ChatLogUtil.logOutgoing(content, result.command());
+                if (result.command()) {
+                    ChatLogUtil.logOutgoing(content, true);
+                }
                 MessageEditData payload = MessageEditData.fromCreateData(
                         MessageFormatterManager.format(
                                 DiscordMessageSpec.builder()
