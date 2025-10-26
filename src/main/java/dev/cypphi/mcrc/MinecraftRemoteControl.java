@@ -47,7 +47,7 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		LOGGER.info("Initializing {} {}...", MOD_ID, MOD_VERSION);
+		LOGGER.info("Initializing {} {}...", MOD_ID.toUpperCase(), MOD_VERSION);
 
 		MCRCConfig.HANDLER.load();
 
