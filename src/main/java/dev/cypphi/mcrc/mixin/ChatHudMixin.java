@@ -17,7 +17,7 @@ import java.util.UUID;
 public abstract class ChatHudMixin {
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V", at = @At("TAIL"))
     private void mcrc$logChatMessage(Text message, MessageSignatureData signature, MessageIndicator indicator, CallbackInfo ci) {
-        UUID sender = IncomingMessageTracker.consume(signature);
+        UUID sender = IncomingMessageTracker.consume(signature, message);
         ChatLogUtil.logIncoming(message, indicator, sender);
     }
 }
