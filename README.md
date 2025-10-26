@@ -62,4 +62,4 @@ Here's a simple guide for how to use this mod.
 ## Licensing Notice
 - This project uses [JDA (Java Discord API)](https://github.com/discord-jda/JDA)
   licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
-- All bundled third-party components are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- All bundled third-party components are documented in [THIRD_PARTY_NOTICES.md](https://github.com/Cypphi/mc-remote-control/blob/1.21.4/THIRD_PARTY_NOTICES.md).
