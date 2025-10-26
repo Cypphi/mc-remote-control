@@ -10,6 +10,7 @@ public final class DiscordMessageSpec {
     private final String description;
     private final DiscordMessageKind kind;
     private final String footer;
+    private final String footerIconUrl;
     private final boolean timestamp;
     private final String thumbnailUrl;
     private final Color overrideColor;
@@ -21,6 +22,7 @@ public final class DiscordMessageSpec {
         this.description = builder.description;
         this.kind = builder.kind;
         this.footer = builder.footer;
+        this.footerIconUrl = builder.footerIconUrl;
         this.timestamp = builder.timestamp;
         this.thumbnailUrl = builder.thumbnailUrl;
         this.overrideColor = builder.overrideColor;
@@ -42,6 +44,10 @@ public final class DiscordMessageSpec {
 
     public String footer() {
         return footer;
+    }
+
+    public String footerIconUrl() {
+        return footerIconUrl;
     }
 
     public boolean timestamp() {
@@ -80,6 +86,7 @@ public final class DiscordMessageSpec {
         private String description;
         private DiscordMessageKind kind = DiscordMessageKind.INFO;
         private String footer;
+        private String footerIconUrl;
         private boolean timestamp;
         private String thumbnailUrl;
         private Color overrideColor;
@@ -107,6 +114,11 @@ public final class DiscordMessageSpec {
 
         public Builder footer(String footer) {
             this.footer = footer;
+            return this;
+        }
+
+        public Builder footerIconUrl(String footerIconUrl) {
+            this.footerIconUrl = footerIconUrl;
             return this;
         }
 
