@@ -2,11 +2,13 @@ package dev.cypphi.mcrc.discord.util.chat;
 
 import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
 import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.MessageIndicator;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.Text;
 
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 
 public final class ChatLogUtil {
@@ -30,17 +32,23 @@ public final class ChatLogUtil {
         String channel = resolveChannel(indicator);
 
         String title = "Chat: " + channel;
-        String thread = Thread.currentThread().getName();
+        String senderName = resolveSenderName(sender);
+        String footerText = "Sender: " + senderName;
+        String avatarUrl = sender != null ? buildAvatarUrl(sender) : null;
 
-        DiscordMessageSpec spec = DiscordMessageSpec.builder()
+        DiscordMessageSpec.Builder builder = DiscordMessageSpec.builder()
                 .title(title)
                 .description(codeBlock(analysis.content()))
                 .colorOverride(analysis.color())
                 .timestamp(true)
-                .addField("Sender", Optional.ofNullable(sender).map(UUID::toString).orElse("unknown"), true)
-                .build();
+                .footer(footerText)
+                .footerIconUrl(avatarUrl);
 
-        DiscordMessageUtil.sendMessage(spec);
+        if (sender != null) {
+            builder.addField("Sender UUID", sender.toString(), true);
+        }
+
+        DiscordMessageUtil.sendMessage(builder.build());
     }
 
     private static String codeBlock(String content) {
@@ -58,5 +66,29 @@ public final class ChatLogUtil {
         }
 
         return icon.name().toLowerCase(Locale.ROOT);
+    }
+
+    private static String resolveSenderName(UUID sender) {
+        if (sender == null) {
+            return "unknown";
+        }
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client != null) {
+            ClientPlayNetworkHandler handler = client.getNetworkHandler();
+            if (handler != null) {
+                PlayerListEntry entry = handler.getPlayerListEntry(sender);
+                if (entry != null && entry.getProfile() != null && entry.getProfile().getName() != null) {
+                    return entry.getProfile().getName();
+                }
+            }
+        }
+
+        return sender.toString();
+    }
+
+    private static String buildAvatarUrl(UUID sender) {
+        String uuid = sender.toString().replace("-", "");
+        return "https://crafatar.com/avatars/" + uuid + "?size=32&overlay";
     }
 }

@@ -31,7 +31,7 @@ public class EmbedFormatter implements IDiscordMessageFormatter {
         }
 
         if (spec.footer() != null && !spec.footer().isBlank()) {
-            builder.setFooter(spec.footer());
+            builder.setFooter(spec.footer(), spec.footerIconUrl());
         }
 
         if (spec.thumbnailUrl() != null && !spec.thumbnailUrl().isBlank()) {
