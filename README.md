@@ -1,18 +1,17 @@
 # MC Remote Control
-Control and view your Minecraft client directly through Discord.
 
 <div align="center">
     <a href="https://discord.gg/2b2tism"><img src="https://img.shields.io/discord/1340108466370641960?logo=discord" alt="Discord"/></a>
-    <img src="https://img.shields.io/github/languages/code-size/Cypphi/mc-remote-control" alt="GitHub code size in bytes"/>
+    <img src="https://img.shields.io/github/languages/code-size/Cypphi/mc-remote-control" alt="Code size in bytes"/>
+    <img src="https://img.shields.io/endpoint?url=https://ghloc.vercel.app/api/Cypphi/mc-remote-control/badge?filter=.java$&label=lines%20of%20code&color=blue" alt="Lines of code"/>
 </div>
+
+Control and view your Minecraft client directly through Discord.
 
 ## Discord
 - Join our Discord [here](https://discord.gg/2b2tism) for:
-  - Suggestions
-  - Bug reports
-  - Further mod support
-  - Updates
-  - Yapping :D
+  - Suggestions, support & discussion regarding the mod.
+  - Other Minecraft (or 2b2t) related projects.
 
 ## Supported versions
 Feel free to request additional versions to be supported :) (Join my support Discord.)

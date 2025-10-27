@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class BotReadyListener extends ListenerAdapter {
     private static final String BIO_TEMPLATE = """
-            MC Remote Control %s
+            MC Remote Control **%s**
             Official Discord:
               https://discord.gg/2b2tism
             GitHub:
@@ -29,7 +29,7 @@ public class BotReadyListener extends ListenerAdapter {
     private void updateBotBio(ReadyEvent event) {
         String desiredBio = BIO_TEMPLATE.formatted(MinecraftRemoteControl.MOD_VERSION).stripTrailing();
         event.getJDA().retrieveApplicationInfo().queue(info -> {
-            String currentBio = Optional.ofNullable(info.getDescription())
+            String currentBio = Optional.of(info.getDescription())
                     .map(String::stripTrailing)
                     .orElse("");
 
@@ -50,7 +50,7 @@ public class BotReadyListener extends ListenerAdapter {
     private String resolveClientUsername() {
         return Optional.ofNullable(MinecraftRemoteControl.mc)
                 .map(client -> client.getSession().getUsername())
-                .filter(name -> name != null && !name.isBlank())
+                .filter(name -> !name.isBlank())
                 .orElse("your client");
     }
 }

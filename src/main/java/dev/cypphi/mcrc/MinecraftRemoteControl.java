@@ -6,6 +6,7 @@ import dev.cypphi.mcrc.discord.bot.DiscordBotBuilder;
 import dev.cypphi.mcrc.discord.command.CommandRegistry;
 import dev.cypphi.mcrc.discord.command.commands.*;
 import dev.cypphi.mcrc.discord.event.BotReadyListener;
+import dev.cypphi.mcrc.discord.notification.SessionNotificationManager;
 import dev.cypphi.mcrc.discord.util.DiscordMessageKind;
 import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
 import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
@@ -47,12 +48,17 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		LOGGER.info("Initializing {} {}...", MOD_ID.toUpperCase(), MOD_VERSION);
+        if (!MOD_VERSION.equals("unknown")) {
+            LOGGER.info("Initializing {} {}...", MOD_ID.toUpperCase(), MOD_VERSION);
+        } else {
+            LOGGER.info("Initializing {} version unknown...", MOD_ID.toUpperCase());
+        }
 
 		MCRCConfig.HANDLER.load();
 
 		MCRCConfig config = MCRCConfig.HANDLER.instance();
 		remoteViewSessionManager.setSessionTtlSeconds(config.remoteViewLinkTimeoutSeconds);
+        SessionNotificationManager.init();
 
 			if (config.remoteViewEnabled) {
 				ensureSignalingServer(config);
@@ -62,42 +68,44 @@ public class MinecraftRemoteControl implements ClientModInitializer {
 				if (config.botToken == null || config.botToken.isBlank()) {
 					LOGGER.warn("Discord bot token is not configured; skipping bot startup.");
 					return;
-		}
+		        }
 
-			try {
-                CommandRegistry commandRegistry = new CommandRegistry()
-                        .register(new HelpCommand())
-                        .register(new MessageCommand())
-                        .register(new PingCommand())
-                        .register(new RemoteViewCommand())
-                        .register(new ScreenshotCommand());
+                try {
+                    CommandRegistry commandRegistry = new CommandRegistry()
+                            .register(new HelpCommand())
+                            .register(new MessageCommand())
+                            .register(new PingCommand())
+                            .register(new RemoteViewCommand())
+                            .register(new ScreenshotCommand());
 
-				discordBot = new DiscordBotBuilder()
-						.withToken(config.botToken)
-						.addIntent(GatewayIntent.GUILD_MESSAGES)
-						.addIntent(GatewayIntent.MESSAGE_CONTENT)
-						.withCommandGuildId(config.commandGuildId)
-						.withCommandRegistry(commandRegistry)
-						.addEventListener(new BotReadyListener())
-						.build();
+                    discordBot = new DiscordBotBuilder()
+                            .withToken(config.botToken)
+                            .addIntent(GatewayIntent.GUILD_MESSAGES)
+                            .addIntent(GatewayIntent.MESSAGE_CONTENT)
+                            .withCommandGuildId(config.commandGuildId)
+                            .withCommandRegistry(commandRegistry)
+                            .addEventListener(new BotReadyListener())
+                            .build();
 
-				jda = discordBot.startAndAwaitReady();
-				LOGGER.info("Discord bot initialized successfully");
-                DiscordMessageUtil.sendMessage(
-                        DiscordMessageSpec.builder()
-                                .title("MC Remote Control")
-                                .description("Discord bot is online.")
-                                .kind(DiscordMessageKind.SUCCESS)
-                                .timestamp(true)
-                                .build());
-			} catch (InvalidTokenException e) {
-				LOGGER.error("Invalid token provided. Please enter a valid token.");
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				LOGGER.error("Discord bot startup interrupted.");
-			} catch (Exception e) {
-				LOGGER.error("Unexpected error: {}", e.getMessage());
-			}
+                    jda = discordBot.startAndAwaitReady();
+                    LOGGER.info("Discord bot initialized successfully");
+                    if (config.notifyOnBotReady) {
+                        DiscordMessageUtil.sendMessage(
+                                DiscordMessageSpec.builder()
+                                        .title("MC Remote Control")
+                                        .description("Discord bot is online.")
+                                        .kind(DiscordMessageKind.SUCCESS)
+                                        .timestamp(true)
+                                        .build());
+                    }
+                } catch (InvalidTokenException e) {
+                    LOGGER.error("Invalid token provided. Please enter a valid token.");
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    LOGGER.error("Discord bot startup interrupted.");
+                } catch (Exception e) {
+                    LOGGER.error("Unexpected error: {}", e.getMessage());
+                }
 		}
 	}
 
