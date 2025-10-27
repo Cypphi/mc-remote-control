@@ -222,7 +222,7 @@ public class MCRCConfig {
 
     public static ConfigCategory getRemoteViewCategory() {
         return ConfigCategory.createBuilder()
-                .name(Text.of("Remote View"))
+                .name(Text.of("Remote View (WIP)"))
 
                 .option(Option.<Boolean>createBuilder()
                         .name(Text.of("Enable Remote View"))
