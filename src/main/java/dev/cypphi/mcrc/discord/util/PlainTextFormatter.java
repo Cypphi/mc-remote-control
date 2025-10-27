@@ -7,6 +7,11 @@ public class PlainTextFormatter implements IDiscordMessageFormatter {
     @Override
     public MessageCreateData format(DiscordMessageSpec spec) {
         StringBuilder builder = new StringBuilder();
+
+        if (spec.content() != null && !spec.content().isBlank()) {
+            builder.append(spec.content().trim()).append("\n\n");
+        }
+
         if (spec.title() != null && !spec.title().isBlank()) {
             builder.append("**").append(spec.title().trim()).append("**").append("\n");
         }

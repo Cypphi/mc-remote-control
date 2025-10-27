@@ -9,6 +9,7 @@ public final class DiscordMessageSpec {
     private final String title;
     private final String description;
     private final DiscordMessageKind kind;
+    private final String content;
     private final String footer;
     private final String footerIconUrl;
     private final boolean timestamp;
@@ -21,6 +22,7 @@ public final class DiscordMessageSpec {
         this.title = builder.title;
         this.description = builder.description;
         this.kind = builder.kind;
+        this.content = builder.content;
         this.footer = builder.footer;
         this.footerIconUrl = builder.footerIconUrl;
         this.timestamp = builder.timestamp;
@@ -40,6 +42,10 @@ public final class DiscordMessageSpec {
 
     public DiscordMessageKind kind() {
         return kind;
+    }
+
+    public String content() {
+        return content;
     }
 
     public String footer() {
@@ -85,6 +91,7 @@ public final class DiscordMessageSpec {
         private String title;
         private String description;
         private DiscordMessageKind kind = DiscordMessageKind.INFO;
+        private String content;
         private String footer;
         private String footerIconUrl;
         private boolean timestamp;
@@ -102,6 +109,11 @@ public final class DiscordMessageSpec {
 
         public Builder description(String description) {
             this.description = description;
+            return this;
+        }
+
+        public Builder content(String content) {
+            this.content = content;
             return this;
         }
 
@@ -150,10 +162,10 @@ public final class DiscordMessageSpec {
         }
 
         public DiscordMessageSpec build() {
-            Objects.requireNonNull(description, "description must not be null");
-            return new DiscordMessageSpec(this);
-        }
+        Objects.requireNonNull(description, "description must not be null");
+        return new DiscordMessageSpec(this);
     }
+}
 
     public record Field(String name, String value, boolean inline) {}
 }

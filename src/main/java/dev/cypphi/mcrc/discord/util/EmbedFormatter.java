@@ -2,6 +2,7 @@ package dev.cypphi.mcrc.discord.util;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.awt.Color;
@@ -46,6 +47,13 @@ public class EmbedFormatter implements IDiscordMessageFormatter {
             builder.setTimestamp(Instant.now());
         }
 
-        return MessageCreateData.fromEmbeds(builder.build());
+        MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
+
+        if (spec.content() != null && !spec.content().isBlank()) {
+            messageBuilder.setContent(spec.content());
+        }
+
+        messageBuilder.addEmbeds(builder.build());
+        return messageBuilder.build();
     }
 }

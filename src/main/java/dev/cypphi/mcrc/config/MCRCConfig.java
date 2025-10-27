@@ -24,51 +24,68 @@ public class MCRCConfig {
                     .build())
             .build();
 
+    // -----------------------------------------------------------------
+    // Main settings
+    // -----------------------------------------------------------------
     @SerialEntry
     public boolean autoStart = false;
-
     @SerialEntry
     public boolean useEmbeds = true;
-
     @SerialEntry
     public boolean useEmbedColors = true;
-
     @SerialEntry
     public boolean allowPublicCommands = false;
 
+    // -----------------------------------------------------------------
+    // Notifications
+    // -----------------------------------------------------------------
+    @SerialEntry
+    public boolean notifyOnBotReady = true;
+    @SerialEntry
+    public boolean logChatMessages = true;
+    @SerialEntry
+    public boolean notifyOnJoinSingleplayer = true;
+    @SerialEntry
+    public boolean notifyOnJoinMultiplayer = true;
+    @SerialEntry
+    public boolean notifyOnDisconnectSingleplayer = true;
+    @SerialEntry
+    public boolean notifyOnDisconnectMultiplayer = true;
+    @SerialEntry
+    public boolean pingOnDisconnectMultiplayer = true;
+
+    // -----------------------------------------------------------------
+    // Remote View
+    // -----------------------------------------------------------------
     @SerialEntry
     public boolean remoteViewEnabled = false;
-
     @SerialEntry
     public int remoteViewFps = 30;
-
     @SerialEntry
     public String remoteViewBindAddress = "0.0.0.0";
-
     @SerialEntry
     public int remoteViewPort = 47823;
-
     @SerialEntry
     public String remoteViewPublicBaseUrl = "";
-
     @SerialEntry
     public int remoteViewLinkTimeoutSeconds = 120;
 
+    // -----------------------------------------------------------------
+    // Discord credentials
+    // -----------------------------------------------------------------
     @SerialEntry
     public String botToken = "";
-
     @SerialEntry
     public String discordChannel = "";
-
     @SerialEntry
     public String commandGuildId = "";
-
     @SerialEntry
     public String allowedUserId = "";
 
+
     public static ConfigCategory getMainCategory() {
         return ConfigCategory.createBuilder()
-                .name(Text.of("Remote Control"))
+                .name(Text.of("Main"))
 
                 .option(Option.<Boolean>createBuilder()
                         .name(Text.of("Start on launch"))
@@ -117,6 +134,89 @@ public class MCRCConfig {
                         .controller(option -> BooleanControllerBuilder.create(option).coloured(true))
                         .build())
 
+                .build();
+    }
+
+    public static ConfigCategory getNotificationsCategory() {
+        return ConfigCategory.createBuilder()
+                .name(Text.of("Notifications"))
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Bot Ready Event"))
+                        .description(OptionDescription.of(Text.of("Send a status notification when the Discord bot reports ready.")))
+                        .binding(
+                                true,
+                                () -> HANDLER.instance().notifyOnBotReady,
+                                value -> HANDLER.instance().notifyOnBotReady = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Chat Logging"))
+                        .description(OptionDescription.of(Text.of("Mirror in-game chat activity to Discord.")))
+                        .binding(
+                                true,
+                                () -> HANDLER.instance().logChatMessages,
+                                value -> HANDLER.instance().logChatMessages = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Join Notification (Singleplayer)"))
+                        .description(OptionDescription.of(Text.of("Send a notification when the singleplayer world session starts.")))
+                        .binding(
+                                true,
+                                () -> HANDLER.instance().notifyOnJoinSingleplayer,
+                                value -> HANDLER.instance().notifyOnJoinSingleplayer = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Join Notification (Multiplayer)"))
+                        .description(OptionDescription.of(Text.of("Send a notification when the player joins a multiplayer server.")))
+                        .binding(
+                                true,
+                                () -> HANDLER.instance().notifyOnJoinMultiplayer,
+                                value -> HANDLER.instance().notifyOnJoinMultiplayer = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Disconnect Notification (Singleplayer)"))
+                        .description(OptionDescription.of(Text.of("Send a notification when the singleplayer world is closed.")))
+                        .binding(
+                                true,
+                                () -> HANDLER.instance().notifyOnDisconnectSingleplayer,
+                                value -> HANDLER.instance().notifyOnDisconnectSingleplayer = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Disconnect Notification (Multiplayer)"))
+                        .description(OptionDescription.of(Text.of("Send a notification when the player leaves a multiplayer server.")))
+                        .binding(
+                                true,
+                                () -> HANDLER.instance().notifyOnDisconnectMultiplayer,
+                                value -> HANDLER.instance().notifyOnDisconnectMultiplayer = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Ping on Kick (Multiplayer)"))
+                        .description(OptionDescription.of(Text.of("Mention the configured allowed Discord user when kicked from a multiplayer server.")))
+                        .binding(
+                                true,
+                                () -> HANDLER.instance().pingOnDisconnectMultiplayer,
+                                value -> HANDLER.instance().pingOnDisconnectMultiplayer = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
                 .build();
     }
 

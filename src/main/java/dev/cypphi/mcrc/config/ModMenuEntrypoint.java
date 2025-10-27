@@ -11,6 +11,7 @@ public class ModMenuEntrypoint implements ModMenuApi {
         return parent -> YetAnotherConfigLib.createBuilder()
                 .title(Text.of("Remote Control"))
                 .category(MCRCConfig.getMainCategory())
+                .category(MCRCConfig.getNotificationsCategory())
                 .category(MCRCConfig.getRemoteViewCategory())
                 .category(MCRCConfig.getCredentialsCategory())
                 .save(MCRCConfig.HANDLER::save)
