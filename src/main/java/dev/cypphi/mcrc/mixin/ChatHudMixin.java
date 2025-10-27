@@ -3,6 +3,8 @@ package dev.cypphi.mcrc.mixin;
 import dev.cypphi.mcrc.config.MCRCConfig;
 import dev.cypphi.mcrc.discord.util.chat.ChatLogUtil;
 import dev.cypphi.mcrc.discord.util.chat.IncomingMessageTracker;
+import dev.cypphi.mcrc.discord.util.chat.LocalMessageTracker;
+import dev.cypphi.mcrc.discord.util.chat.ServerMessageTracker;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.MessageIndicator;
 import net.minecraft.network.message.MessageSignatureData;
@@ -23,6 +25,13 @@ public abstract class ChatHudMixin {
         }
 
         UUID sender = IncomingMessageTracker.consume(signature, message);
-        ChatLogUtil.logIncoming(message, indicator, sender);
+        boolean server = ServerMessageTracker.consume(message);
+        boolean local = LocalMessageTracker.consume(message);
+        ChatLogUtil.logIncoming(message, indicator, sender, server, local);
+    }
+
+    @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("HEAD"))
+    private void mcrc$recordLocal(Text message, CallbackInfo ci) {
+        LocalMessageTracker.record(message);
     }
 }
