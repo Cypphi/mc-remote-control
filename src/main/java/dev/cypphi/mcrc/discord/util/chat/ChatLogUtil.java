@@ -18,6 +18,7 @@ import java.util.UUID;
 
 public final class ChatLogUtil {
     private static final Method PROFILE_NAME_ACCESSOR = resolveProfileNameAccessor();
+    private static final Method PROFILE_ID_ACCESSOR = resolveProfileIdAccessor();
 
     private ChatLogUtil() {}
 
@@ -188,12 +189,15 @@ public final class ChatLogUtil {
         }
 
         GameProfile profile = entry.getProfile();
-        if (profile == null || profile.getId() == null) {
+        UUID uuid = readProfileId(profile);
+        if (uuid == null) {
             return null;
         }
 
-        UUID uuid = profile.getId();
-        String resolvedName = profile.getName() != null ? profile.getName() : name;
+        String resolvedName = readProfileName(profile);
+        if (resolvedName == null || resolvedName.isBlank()) {
+            resolvedName = name;
+        }
         String avatar = buildAvatarUrl(uuid);
         return new SenderDetails(resolvedName, uuid, avatar);
     }
@@ -321,6 +325,18 @@ public final class ChatLogUtil {
         }
     }
 
+    private static Method resolveProfileIdAccessor() {
+        try {
+            return GameProfile.class.getMethod("getId");
+        } catch (NoSuchMethodException ignored) {
+            try {
+                return GameProfile.class.getMethod("id");
+            } catch (NoSuchMethodException innerIgnored) {
+                return null;
+            }
+        }
+    }
+
     private static SenderDetails senderFromIndicator(MessageIndicator indicator) {
         if (indicator != null && indicator.icon() != null) {
             String title = formatIndicatorName(indicator.icon());
@@ -353,6 +369,21 @@ public final class ChatLogUtil {
             Object value = PROFILE_NAME_ACCESSOR.invoke(profile);
             if (value instanceof String str) {
                 return str;
+            }
+        } catch (ReflectiveOperationException ignored) {
+        }
+        return null;
+    }
+
+    private static UUID readProfileId(GameProfile profile) {
+        if (profile == null || PROFILE_ID_ACCESSOR == null) {
+            return null;
+        }
+
+        try {
+            Object value = PROFILE_ID_ACCESSOR.invoke(profile);
+            if (value instanceof UUID uuid) {
+                return uuid;
             }
         } catch (ReflectiveOperationException ignored) {
         }
