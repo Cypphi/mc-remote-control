@@ -7,6 +7,9 @@
   <a href="https://github.com/Cypphi/mc-remote-control">
     <img src="https://tokei.rs/b1/github/Cypphi/mc-remote-control?category=code" alt="Total lines of code"/>
   </a>
+  <a href="https://github.com/Cypphi/mc-remote-control">
+    <img src="https://tokei.rs/b1/github/Cypphi/mc-remote-control?category=bytes" alt="Code size"/>
+  </a>
 </div>
 
 Control and view your Minecraft client directly through Discord.
