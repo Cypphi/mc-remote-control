@@ -4,9 +4,11 @@
   <a href="https://discord.gg/2b2tism">
     <img src="https://img.shields.io/discord/1340108466370641960?logo=discord" alt="Discord"/>
   </a>
-  <img src="https://img.shields.io/github/languages/code-size/Cypphi/mc-remote-control" alt="Code size in bytes"/>
   <a href="https://github.com/Cypphi/mc-remote-control">
     <img src="https://tokei.rs/b1/github/Cypphi/mc-remote-control?category=code" alt="Total lines of code"/>
+  </a>
+  <a href="https://github.com/Cypphi/mc-remote-control">
+    <img src="https://tokei.rs/b1/github/Cypphi/mc-remote-control?category=bytes" alt="Code size"/>
   </a>
 </div>
 
