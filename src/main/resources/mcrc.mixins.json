@@ -1,12 +1,13 @@
 {
-	"required": true,
-	"package": "dev.cypphi.mcrc.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"client": [
-		"ChatHudMixin",
-		"ClientPlayNetworkHandlerMixin"
-	]
+  "required": true,
+  "package": "dev.cypphi.mcrc.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "ChatHudMixin",
+    "ClientConnectionMixin",
+    "ClientPlayNetworkHandlerMixin"
+  ]
 }

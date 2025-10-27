@@ -15,6 +15,15 @@ public class SlashCommandListener extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         MCRCConfig config = MCRCConfig.HANDLER.instance();
+
+        String configuredChannelId = config.discordChannel == null ? "" : config.discordChannel.trim();
+        if (!configuredChannelId.isEmpty() && !configuredChannelId.equals(event.getChannel().getId())) {
+            event.reply("Commands are only allowed in <#" + configuredChannelId + ">.")
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         if (!config.allowPublicCommands) {
             String allowedUserId = config.allowedUserId == null ? "" : config.allowedUserId.trim();
             if (allowedUserId.isEmpty()) {
