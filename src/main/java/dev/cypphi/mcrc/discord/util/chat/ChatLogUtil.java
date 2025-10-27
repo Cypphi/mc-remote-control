@@ -4,8 +4,6 @@ import com.mojang.authlib.GameProfile;
 import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
 import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
 import dev.cypphi.mcrc.discord.util.MojangProfileResolver;
-
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.MessageIndicator;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
