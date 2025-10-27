@@ -56,6 +56,10 @@ Here's a quick guide to get started.
 - Relaunch the client and have fun :)
 - Run `/help` via the Discord bot to view the available commands.
 
+### Controlling the bot in-game
+- Run `/mcrc start` from the Minecraft client to manually launch the Discord bot when auto-start is disabled.
+- Use `/mcrc stop` to shut the bot down without closing your game.
+
 ## Contributing
 - Contributions are welcome!
 - Follow the existing code style and clearly describe what you changed or added.
