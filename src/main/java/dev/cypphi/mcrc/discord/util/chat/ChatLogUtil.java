@@ -1,7 +1,5 @@
 package dev.cypphi.mcrc.discord.util.chat;
 
-import com.mojang.authlib.GameProfile;
-import dev.cypphi.mcrc.MinecraftRemoteControl;
 import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
 import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
 import net.minecraft.client.MinecraftClient;
@@ -10,8 +8,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.Text;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -35,7 +31,7 @@ public final class ChatLogUtil {
         ChatFormattingUtil.ChatAnalysis analysis = ChatFormattingUtil.analyze(message);
         String channel = resolveChannel(indicator);
 
-        String title = "Chat: " + channel;
+        String title = formatChannelLabel(channel);
         String senderName = resolveSenderName(sender);
         String footerText = "Sender: " + senderName;
         String avatarUrl = sender != null ? buildAvatarUrl(sender) : null;
@@ -72,12 +68,44 @@ public final class ChatLogUtil {
         return icon.name().toLowerCase(Locale.ROOT);
     }
 
-    private static final Method GAME_PROFILE_GET_NAME = resolveProfileAccessor("getName");
-    private static final Method GAME_PROFILE_NAME = resolveProfileAccessor("name");
+    private static String formatChannelLabel(String channel) {
+        if (channel == null || channel.isBlank()) {
+            return "In-game Chat";
+        }
+
+        if ("chat".equalsIgnoreCase(channel.trim())) {
+            return "In-game Chat";
+        }
+
+        String normalized = channel.replace('_', ' ').trim();
+        String[] parts = normalized.split("\\s+");
+        StringBuilder builder = new StringBuilder();
+        for (String part : parts) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            String capitalized = part.substring(0, 1).toUpperCase(Locale.ROOT) +
+                    part.substring(1).toLowerCase(Locale.ROOT);
+            if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+            builder.append(capitalized);
+        }
+
+        if (builder.isEmpty()) {
+            return "In-game Chat";
+        }
+
+        if (!builder.toString().toLowerCase(Locale.ROOT).contains("chat")) {
+            builder.append(" Chat");
+        }
+
+        return builder.toString();
+    }
 
     private static String resolveSenderName(UUID sender) {
         if (sender == null) {
-            return "unknown";
+            return "client";
         }
 
         MinecraftClient client = MinecraftClient.getInstance();
@@ -85,58 +113,13 @@ public final class ChatLogUtil {
             ClientPlayNetworkHandler handler = client.getNetworkHandler();
             if (handler != null) {
                 PlayerListEntry entry = handler.getPlayerListEntry(sender);
-                if (entry != null) {
-                    Text displayName = entry.getDisplayName();
-                    if (displayName != null) {
-                        String literal = displayName.getString();
-                        if (!literal.isBlank()) {
-                            return literal;
-                        }
-                    }
-
-                    String profileName = extractProfileName(entry.getProfile());
-                    if (profileName != null && !profileName.isBlank()) {
-                        return profileName;
-                    }
+                if (entry != null && entry.getProfile() != null && entry.getProfile().getName() != null) {
+                    return entry.getProfile().getName();
                 }
             }
         }
 
-        return sender.toString();
-    }
-
-    private static Method resolveProfileAccessor(String methodName) {
-        try {
-            return GameProfile.class.getMethod(methodName);
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-    }
-
-    private static String extractProfileName(GameProfile profile) {
-        if (profile == null) {
-            return null;
-        }
-
-        try {
-            if (GAME_PROFILE_GET_NAME != null) {
-                Object value = GAME_PROFILE_GET_NAME.invoke(profile);
-                if (value instanceof String str) {
-                    return str;
-                }
-            }
-
-            if (GAME_PROFILE_NAME != null) {
-                Object value = GAME_PROFILE_NAME.invoke(profile);
-                if (value instanceof String str) {
-                    return str;
-                }
-            }
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            MinecraftRemoteControl.LOGGER.debug("Failed to read profile name", e);
-        }
-
-        return null;
+        return "client";
     }
 
     private static String buildAvatarUrl(UUID sender) {

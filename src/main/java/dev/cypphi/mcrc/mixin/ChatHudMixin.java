@@ -1,5 +1,6 @@
 package dev.cypphi.mcrc.mixin;
 
+import dev.cypphi.mcrc.config.MCRCConfig;
 import dev.cypphi.mcrc.discord.util.chat.ChatLogUtil;
 import dev.cypphi.mcrc.discord.util.chat.IncomingMessageTracker;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -17,6 +18,10 @@ import java.util.UUID;
 public abstract class ChatHudMixin {
     @Inject(method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V", at = @At("TAIL"))
     private void mcrc$logChatMessage(Text message, MessageSignatureData signature, MessageIndicator indicator, CallbackInfo ci) {
+        if (!MCRCConfig.HANDLER.instance().logChatMessages) {
+            return;
+        }
+
         UUID sender = IncomingMessageTracker.consume(signature, message);
         ChatLogUtil.logIncoming(message, indicator, sender);
     }
