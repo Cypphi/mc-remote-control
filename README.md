@@ -3,7 +3,7 @@
 <div align="center">
     <a href="https://discord.gg/2b2tism"><img src="https://img.shields.io/discord/1340108466370641960?logo=discord" alt="Discord"/></a>
     <img src="https://img.shields.io/github/languages/code-size/Cypphi/mc-remote-control" alt="Code size in bytes"/>
-    <img src="https://img.shields.io/endpoint?url=https://ghloc.vercel.app/api/Cypphi/mc-remote-control/badge?filter=.java$&label=lines%20of%20code&color=blue" alt="Lines of code"/>
+    [![Lines of Code](https://tokei.rs/b1/github/OWNER/REPO?category=code)](https://github.com/Cypphi/mc-remote-control)
 </div>
 
 Control and view your Minecraft client directly through Discord.
