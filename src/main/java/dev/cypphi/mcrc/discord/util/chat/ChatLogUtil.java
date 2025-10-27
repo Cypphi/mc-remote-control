@@ -1,5 +1,6 @@
 package dev.cypphi.mcrc.discord.util.chat;
 
+import com.mojang.authlib.GameProfile;
 import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
 import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
 import net.minecraft.client.MinecraftClient;
@@ -8,6 +9,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.Text;
 
+import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -103,6 +105,8 @@ public final class ChatLogUtil {
         return builder.toString();
     }
 
+    private static final Method PROFILE_NAME_METHOD = resolveProfileNameMethod();
+
     private static String resolveSenderName(UUID sender) {
         if (sender == null) {
             return "client";
@@ -113,13 +117,51 @@ public final class ChatLogUtil {
             ClientPlayNetworkHandler handler = client.getNetworkHandler();
             if (handler != null) {
                 PlayerListEntry entry = handler.getPlayerListEntry(sender);
-                if (entry != null && entry.getProfile() != null && entry.getProfile().getName() != null) {
-                    return entry.getProfile().getName();
+                if (entry != null) {
+                    Text displayName = entry.getDisplayName();
+                    if (displayName != null) {
+                        String niceName = displayName.getString();
+                        if (!niceName.isBlank()) {
+                            return niceName;
+                        }
+                    }
+
+                    String profileName = extractProfileName(entry.getProfile());
+                    if (profileName != null && !profileName.isBlank()) {
+                        return profileName;
+                    }
                 }
             }
         }
 
         return "client";
+    }
+
+    private static Method resolveProfileNameMethod() {
+        try {
+            return GameProfile.class.getMethod("name");
+        } catch (NoSuchMethodException ignored) {
+            try {
+                return GameProfile.class.getMethod("getName");
+            } catch (NoSuchMethodException innerIgnored) {
+                return null;
+            }
+        }
+    }
+
+    private static String extractProfileName(GameProfile profile) {
+        if (profile == null || PROFILE_NAME_METHOD == null) {
+            return null;
+        }
+
+        try {
+            Object value = PROFILE_NAME_METHOD.invoke(profile);
+            if (value instanceof String str) {
+                return str;
+            }
+        } catch (ReflectiveOperationException ignored) {
+        }
+        return null;
     }
 
     private static String buildAvatarUrl(UUID sender) {
