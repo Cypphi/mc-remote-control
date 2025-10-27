@@ -31,7 +31,7 @@ public final class ChatLogUtil {
         ChatFormattingUtil.ChatAnalysis analysis = ChatFormattingUtil.analyze(message);
         String channel = resolveChannel(indicator);
 
-        String title = "Chat: " + channel;
+        String title = formatChannelLabel(channel);
         String senderName = resolveSenderName(sender);
         String footerText = "Sender: " + senderName;
         String avatarUrl = sender != null ? buildAvatarUrl(sender) : null;
@@ -68,9 +68,44 @@ public final class ChatLogUtil {
         return icon.name().toLowerCase(Locale.ROOT);
     }
 
+    private static String formatChannelLabel(String channel) {
+        if (channel == null || channel.isBlank()) {
+            return "In-game Chat";
+        }
+
+        if ("chat".equalsIgnoreCase(channel.trim())) {
+            return "In-game Chat";
+        }
+
+        String normalized = channel.replace('_', ' ').trim();
+        String[] parts = normalized.split("\\s+");
+        StringBuilder builder = new StringBuilder();
+        for (String part : parts) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            String capitalized = part.substring(0, 1).toUpperCase(Locale.ROOT) +
+                    part.substring(1).toLowerCase(Locale.ROOT);
+            if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+            builder.append(capitalized);
+        }
+
+        if (builder.isEmpty()) {
+            return "In-game Chat";
+        }
+
+        if (!builder.toString().toLowerCase(Locale.ROOT).contains("chat")) {
+            builder.append(" Chat");
+        }
+
+        return builder.toString();
+    }
+
     private static String resolveSenderName(UUID sender) {
         if (sender == null) {
-            return "unknown";
+            return "client";
         }
 
         MinecraftClient client = MinecraftClient.getInstance();
@@ -84,7 +119,7 @@ public final class ChatLogUtil {
             }
         }
 
-        return sender.toString();
+        return "client";
     }
 
     private static String buildAvatarUrl(UUID sender) {
