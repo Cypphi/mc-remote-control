@@ -1,5 +1,6 @@
 const queryParams = new URLSearchParams(window.location.search);
-const STREAM_BASE = (queryParams.get('signal')?.trim() || `${window.location.origin}/api/remoteview`).replace(/\/$/, '');
+const DEFAULT_SIGNAL_BASE = `${window.location.origin}/api/remoteview`;
+const STREAM_BASE = sanitizeStreamBase(queryParams.get('signal'), DEFAULT_SIGNAL_BASE);
 const SESSION_TTL_MS = 120_000;
 
 const els = {
@@ -54,6 +55,32 @@ function updateUiState() {
     : 'Paste a valid Remote View link (with session + auth) to begin.';
 
   updateCountdown();
+}
+
+function sanitizeStreamBase(rawSignal, fallback) {
+  const fallthrough = trimTrailingSlash(fallback);
+
+  if (!rawSignal || rawSignal.trim().length === 0) {
+    return fallthrough;
+  }
+
+  try {
+    const candidate = new URL(rawSignal.trim(), window.location.origin);
+    if (!['http:', 'https:'].includes(candidate.protocol)) {
+      return fallthrough;
+    }
+
+    candidate.hash = '';
+    candidate.search = '';
+
+    return trimTrailingSlash(candidate.toString());
+  } catch {
+    return fallthrough;
+  }
+}
+
+function trimTrailingSlash(url) {
+  return url.replace(/\/$/, '');
 }
 
 function maskToken(token) {
