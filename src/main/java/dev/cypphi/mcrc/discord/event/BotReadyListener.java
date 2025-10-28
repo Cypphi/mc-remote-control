@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class BotReadyListener extends ListenerAdapter {
     private static final String BIO_TEMPLATE = """
-            MC Remote Control **%s**
+            MC Remote Control **v%s**
             Official Discord:
               https://discord.gg/2b2tism
             GitHub:
