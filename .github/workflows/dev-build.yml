@@ -1,0 +1,84 @@
+name: Dev Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Grant execute permissions for Gradle
+        run: chmod +x gradlew
+
+      - name: Build project
+        run: ./gradlew clean build
+
+      - name: Prepare release artifact
+        id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # read values from gradle.properties
+          MOD_VERSION=$(awk -F= '$1=="mod_version"{gsub(/\r/,"",$2);print $2}' gradle.properties)
+          MC_VERSION=$(awk -F= '$1=="minecraft_version"{gsub(/\r/,"",$2);print $2}' gradle.properties)
+          BASE_NAME=$(awk -F= '$1=="archives_base_name"{gsub(/\r/,"",$2);print $2}' gradle.properties)
+
+          # find the built jar safely (ignore *sources.jar etc.)
+          shopt -s nullglob
+          CANDIDATES=(build/libs/*-fabric-"${MC_VERSION}".jar)
+          JAR_PATH=""
+          for f in "${CANDIDATES[@]}"; do
+            if [[ "$f" != *sources* ]]; then
+              JAR_PATH="$f"
+              break
+            fi
+          done
+          if [ -z "$JAR_PATH" ]; then
+            echo "Jar file for Minecraft $MC_VERSION not found under build/libs"
+            exit 1
+          fi
+
+          RUN_NUMBER="${GITHUB_RUN_NUMBER}"
+
+          NEW_NAME="${BASE_NAME}-${MOD_VERSION}-fabric-${MC_VERSION}-dev_${RUN_NUMBER}.jar"
+          mv "$JAR_PATH" "build/libs/${NEW_NAME}"
+
+          echo "jar_path=build/libs/${NEW_NAME}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=dev-build-${RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "release_name=Dev Build #${RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "mod_version=${MOD_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "minecraft_version=${MC_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish dev release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.prepare.outputs.release_tag }}
+          name: ${{ steps.prepare.outputs.release_name }}
+          prerelease: true
+          make_latest: false
+          files: ${{ steps.prepare.outputs.jar_path }}
+          body: |
+            Automated dev build for ${{ github.sha }}.
+
+            - Mod version: ${{ steps.prepare.outputs.mod_version }}
+            - Minecraft version: ${{ steps.prepare.outputs.minecraft_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
