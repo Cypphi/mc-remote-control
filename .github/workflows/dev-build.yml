@@ -3,7 +3,7 @@ name: Dev Build
 on:
   push:
     branches:
-      - main
+      - 1.21.4
   workflow_dispatch:
 
 permissions:
@@ -12,6 +12,7 @@ permissions:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/1.21.4'
 
     steps:
       - name: Check out repository
