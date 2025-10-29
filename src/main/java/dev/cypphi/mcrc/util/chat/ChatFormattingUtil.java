@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util.chat;
+package dev.cypphi.mcrc.util.chat;
 
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;

@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
 import java.awt.Color;
 

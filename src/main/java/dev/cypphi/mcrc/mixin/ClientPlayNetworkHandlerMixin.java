@@ -1,8 +1,8 @@
 package dev.cypphi.mcrc.mixin;
 
-import dev.cypphi.mcrc.discord.util.chat.IncomingMessageTracker;
-import dev.cypphi.mcrc.discord.util.chat.PlayerMessageTracker;
-import dev.cypphi.mcrc.discord.util.chat.ServerMessageTracker;
+import dev.cypphi.mcrc.util.chat.IncomingMessageTracker;
+import dev.cypphi.mcrc.util.chat.PlayerMessageTracker;
+import dev.cypphi.mcrc.util.chat.ServerMessageTracker;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
