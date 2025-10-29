@@ -7,12 +7,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build-and-release:
+  build-and-report:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/1.21.4'
+    env:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
     steps:
       - name: Check out repository
@@ -31,18 +33,16 @@ jobs:
       - name: Build project
         run: ./gradlew clean build
 
-      - name: Prepare release artifact
+      - name: Prepare dev artifact
         id: prepare
         shell: bash
         run: |
           set -euo pipefail
 
-          # read values from gradle.properties
           MOD_VERSION=$(awk -F= '$1=="mod_version"{gsub(/\r/,"",$2);print $2}' gradle.properties)
           MC_VERSION=$(awk -F= '$1=="minecraft_version"{gsub(/\r/,"",$2);print $2}' gradle.properties)
           BASE_NAME=$(awk -F= '$1=="archives_base_name"{gsub(/\r/,"",$2);print $2}' gradle.properties)
 
-          # find the built jar safely (ignore *sources.jar etc.)
           shopt -s nullglob
           CANDIDATES=(build/libs/*-fabric-"${MC_VERSION}".jar)
           JAR_PATH=""
@@ -52,34 +52,53 @@ jobs:
               break
             fi
           done
-          if [ -z "$JAR_PATH" ]; then
-            echo "Jar file for Minecraft $MC_VERSION not found under build/libs"
+          if [[ -z "$JAR_PATH" ]]; then
+            echo "Jar file for Minecraft ${MC_VERSION} not found under build/libs"
             exit 1
           fi
 
           RUN_NUMBER="${GITHUB_RUN_NUMBER}"
-
           NEW_NAME="${BASE_NAME}-${MOD_VERSION}-fabric-${MC_VERSION}-dev_${RUN_NUMBER}.jar"
           mv "$JAR_PATH" "build/libs/${NEW_NAME}"
 
           echo "jar_path=build/libs/${NEW_NAME}" >> "$GITHUB_OUTPUT"
-          echo "release_tag=dev-build-${RUN_NUMBER}" >> "$GITHUB_OUTPUT"
-          echo "release_name=Dev Build #${RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "artifact_name=${BASE_NAME}-dev-${RUN_NUMBER}" >> "$GITHUB_OUTPUT"
           echo "mod_version=${MOD_VERSION}" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=${MC_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "run_number=${RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
-      - name: Publish dev release
-        uses: softprops/action-gh-release@v2
+      - name: Upload dev artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ steps.prepare.outputs.release_tag }}
-          name: ${{ steps.prepare.outputs.release_name }}
-          prerelease: true
-          make_latest: false
-          files: ${{ steps.prepare.outputs.jar_path }}
-          body: |
-            Automated dev build for ${{ github.sha }}.
+          name: ${{ steps.prepare.outputs.artifact_name }}
+          path: ${{ steps.prepare.outputs.jar_path }}
+          if-no-files-found: error
 
-            - Mod version: ${{ steps.prepare.outputs.mod_version }}
-            - Minecraft version: ${{ steps.prepare.outputs.minecraft_version }}
+      - name: Notify Discord webhook
+        if: env.DISCORD_WEBHOOK_URL != ''
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ARTIFACT_NAME: ${{ steps.prepare.outputs.artifact_name }}
+          MOD_VERSION: ${{ steps.prepare.outputs.mod_version }}
+          MINECRAFT_VERSION: ${{ steps.prepare.outputs.minecraft_version }}
+          RUN_NUMBER: ${{ steps.prepare.outputs.run_number }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          SHORT_SHA=${GITHUB_SHA:0:7}
+          payload=$(cat <<EOF
+{
+  "embeds": [{
+    "title": "MC Remote Control Dev Build #${RUN_NUMBER}",
+    "url": "${RUN_URL}",
+    "description": "Artifact **${ARTIFACT_NAME}** is ready.",
+    "fields": [
+      {"name": "Mod Version", "value": "${MOD_VERSION}", "inline": true},
+      {"name": "Minecraft Version", "value": "${MINECRAFT_VERSION}", "inline": true},
+      {"name": "Commit", "value": "[${SHORT_SHA}](https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA})", "inline": false}
+    ],
+    "footer": {"text": "${GITHUB_REPOSITORY}"}
+  }]
+}
+EOF
+)
+curl -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL"
