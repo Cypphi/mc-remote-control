@@ -86,19 +86,19 @@ jobs:
         run: |
           SHORT_SHA=${GITHUB_SHA:0:7}
           payload=$(cat <<EOF
-{
-  "embeds": [{
-    "title": "MC Remote Control Dev Build #${RUN_NUMBER}",
-    "url": "${RUN_URL}",
-    "description": "Artifact **${ARTIFACT_NAME}** is ready.",
-    "fields": [
-      {"name": "Mod Version", "value": "${MOD_VERSION}", "inline": true},
-      {"name": "Minecraft Version", "value": "${MINECRAFT_VERSION}", "inline": true},
-      {"name": "Commit", "value": "[${SHORT_SHA}](https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA})", "inline": false}
-    ],
-    "footer": {"text": "${GITHUB_REPOSITORY}"}
-  }]
-}
-EOF
-)
-curl -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL"
+          {
+            "embeds": [{
+              "title": "MC Remote Control Dev Build #${RUN_NUMBER}",
+              "url": "${RUN_URL}",
+              "description": "Artifact **${ARTIFACT_NAME}** is ready.",
+              "fields": [
+                {"name": "Mod Version", "value": "${MOD_VERSION}", "inline": true},
+                {"name": "Minecraft Version", "value": "${MINECRAFT_VERSION}", "inline": true},
+                {"name": "Commit", "value": "[${SHORT_SHA}](https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA})", "inline": false}
+              ],
+              "footer": {"text": "${GITHUB_REPOSITORY}"}
+            }]
+          }
+          EOF
+          )
+          curl -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL"
