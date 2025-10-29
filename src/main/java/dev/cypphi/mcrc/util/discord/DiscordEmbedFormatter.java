@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import java.awt.Color;
 import java.time.Instant;
 
-public class EmbedFormatter implements IDiscordMessageFormatter {
+public class DiscordEmbedFormatter implements IDiscordMessageFormatter {
     @Override
     public MessageCreateData format(DiscordMessageSpec spec) {
         EmbedBuilder builder = new EmbedBuilder();

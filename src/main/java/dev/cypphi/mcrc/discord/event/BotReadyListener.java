@@ -1,6 +1,7 @@
 package dev.cypphi.mcrc.discord.event;
 
 import dev.cypphi.mcrc.MinecraftRemoteControl;
+import dev.cypphi.mcrc.util.client.MinecraftClientUtil;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -48,9 +49,6 @@ public class BotReadyListener extends ListenerAdapter {
     }
 
     private String resolveClientUsername() {
-        return Optional.ofNullable(MinecraftRemoteControl.mc)
-                .map(client -> client.getSession().getUsername())
-                .filter(name -> !name.isBlank())
-                .orElse("your client");
+        return MinecraftClientUtil.getLocalUsername().orElse("your client");
     }
 }

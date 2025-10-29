@@ -1,6 +1,6 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
-import dev.cypphi.mcrc.discord.util.chat.ChatFormattingUtil;
+import dev.cypphi.mcrc.util.chat.ChatFormattingUtil;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public class PlainTextFormatter implements IDiscordMessageFormatter {

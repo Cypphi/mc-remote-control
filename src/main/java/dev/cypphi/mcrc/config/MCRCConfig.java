@@ -53,6 +53,8 @@ public class MCRCConfig {
     public boolean notifyOnDisconnectMultiplayer = true;
     @SerialEntry
     public boolean pingOnDisconnectMultiplayer = true;
+    @SerialEntry
+    public boolean pingOnMention = false;
 
     // -----------------------------------------------------------------
     // Remote View
@@ -214,6 +216,17 @@ public class MCRCConfig {
                                 true,
                                 () -> HANDLER.instance().pingOnDisconnectMultiplayer,
                                 value -> HANDLER.instance().pingOnDisconnectMultiplayer = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Ping on Mention"))
+                        .description(OptionDescription.of(Text.of("Mention the configured Discord user when your Minecraft username appears in chat. (May be unstable on some servers)")))
+                        .binding(
+                                false,
+                                () -> HANDLER.instance().pingOnMention,
+                                value -> HANDLER.instance().pingOnMention = value
                         )
                         .controller(BooleanControllerBuilder::create)
                         .build())

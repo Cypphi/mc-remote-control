@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
 import dev.cypphi.mcrc.MinecraftRemoteControl;
 import dev.cypphi.mcrc.config.MCRCConfig;

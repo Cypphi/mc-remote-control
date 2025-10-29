@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -12,7 +12,7 @@ public class MessageFormatterManager {
         boolean useEmbeds = MCRCConfig.HANDLER.instance().useEmbeds;
 
         IDiscordMessageFormatter formatter = useEmbeds
-                ? new EmbedFormatter()
+                ? new DiscordEmbedFormatter()
                 : new PlainTextFormatter();
 
         return formatter.format(spec);
