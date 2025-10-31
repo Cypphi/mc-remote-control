@@ -14,6 +14,7 @@ import java.util.UUID;
 
 public final class ChatSenderResolver {
     private static final Method PROFILE_NAME_ACCESSOR = resolveProfileNameAccessor();
+    private static final Method PROFILE_ID_ACCESSOR = resolveProfileIdAccessor();
 
     private ChatSenderResolver() {}
 
@@ -143,12 +144,15 @@ public final class ChatSenderResolver {
         }
 
         GameProfile profile = entry.getProfile();
-        if (profile == null || profile.getId() == null) {
+        UUID uuid = readProfileUuid(profile);
+        if (profile == null || uuid == null) {
             return null;
         }
 
-        UUID uuid = profile.getId();
-        String resolvedName = profile.getName() != null ? profile.getName() : name;
+        String resolvedName = readProfileName(profile);
+        if (resolvedName == null || resolvedName.isBlank()) {
+            resolvedName = name;
+        }
         return new ChatSenderDetails(resolvedName, uuid, buildAvatarUrl(uuid));
     }
 
@@ -200,6 +204,33 @@ public final class ChatSenderResolver {
         } catch (ReflectiveOperationException ignored) {
         }
         return null;
+    }
+
+    private static UUID readProfileUuid(GameProfile profile) {
+        if (profile == null || PROFILE_ID_ACCESSOR == null) {
+            return null;
+        }
+
+        try {
+            Object value = PROFILE_ID_ACCESSOR.invoke(profile);
+            if (value instanceof UUID uuid) {
+                return uuid;
+            }
+        } catch (ReflectiveOperationException ignored) {
+        }
+        return null;
+    }
+
+    private static Method resolveProfileIdAccessor() {
+        try {
+            return GameProfile.class.getMethod("getId");
+        } catch (NoSuchMethodException ignored) {
+            try {
+                return GameProfile.class.getMethod("id");
+            } catch (NoSuchMethodException innerIgnored) {
+                return null;
+            }
+        }
     }
 
     public static String buildAvatarUrl(UUID uuid) {
