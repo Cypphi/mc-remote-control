@@ -11,6 +11,8 @@
 
 Control and view your Minecraft client directly through Discord.
 
+Curious what it can do? Peek at [FEATURE_LIST.md](Fhttps://github.com/Cypphi/mc-remote-control/blob/1.21.4/EATURE_LIST.md) for a feature rundown.
+
 ## Discord
 - Join our Discord [here](https://discord.gg/2b2tism) for:
   - Suggestions, support & discussion regarding the mod.
@@ -55,6 +57,7 @@ Here's a quick guide to get started.
 ### 4. Relaunch
 - Relaunch the client and have fun :)
 - Run `/help` via the Discord bot to view the available commands.
+- For more information about the current feature set, check [FEATURE_LIST.md](https://github.com/Cypphi/mc-remote-control/blob/1.21.4/FEATURE_LIST.md).
 
 ### Controlling the bot in-game
 - Run `/mcrc start` from the Minecraft client to manually launch the Discord bot when auto-start is disabled.

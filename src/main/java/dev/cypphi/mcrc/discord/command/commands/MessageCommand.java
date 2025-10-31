@@ -2,11 +2,11 @@ package dev.cypphi.mcrc.discord.command.commands;
 
 import dev.cypphi.mcrc.MinecraftRemoteControl;
 import dev.cypphi.mcrc.discord.command.SlashCommand;
-import dev.cypphi.mcrc.discord.util.DiscordMessageKind;
+import dev.cypphi.mcrc.util.discord.DiscordMessageKind;
 import dev.cypphi.mcrc.config.MCRCConfig;
-import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
-import dev.cypphi.mcrc.discord.util.MessageFormatterManager;
-import dev.cypphi.mcrc.discord.util.chat.ChatLogUtil;
+import dev.cypphi.mcrc.util.discord.DiscordMessageSpec;
+import dev.cypphi.mcrc.util.discord.MessageFormatterManager;
+import dev.cypphi.mcrc.util.chat.ChatLogUtil;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;

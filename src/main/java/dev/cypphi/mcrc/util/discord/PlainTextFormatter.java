@@ -1,6 +1,5 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
-import dev.cypphi.mcrc.discord.util.chat.ChatFormattingUtil;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public class PlainTextFormatter implements IDiscordMessageFormatter {
@@ -26,10 +25,6 @@ public class PlainTextFormatter implements IDiscordMessageFormatter {
 
         if (spec.footer() != null && !spec.footer().isBlank()) {
             builder.append("\n\n_").append(spec.footer().trim()).append("_");
-        }
-
-        if (spec.overrideColor() != null) {
-            builder.append("\nColor: ").append(ChatFormattingUtil.toHex(spec.overrideColor()));
         }
 
         if (spec.imageUrl() != null && !spec.imageUrl().isBlank()) {

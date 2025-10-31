@@ -1,6 +1,7 @@
 package dev.cypphi.mcrc.discord.command;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
+import dev.cypphi.mcrc.util.discord.DiscordPingUtil;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ public class SlashCommandListener extends ListenerAdapter {
         MCRCConfig config = MCRCConfig.HANDLER.instance();
 
         String configuredChannelId = config.discordChannel == null ? "" : config.discordChannel.trim();
-        if (!configuredChannelId.isEmpty() && !configuredChannelId.equals(event.getChannel().getId())) {
+        if (!config.allowCommandsAnywhere && !configuredChannelId.isEmpty() && !configuredChannelId.equals(event.getChannel().getId())) {
             event.reply("Commands are only allowed in <#" + configuredChannelId + ">.")
                     .setEphemeral(true)
                     .queue();
@@ -25,8 +26,8 @@ public class SlashCommandListener extends ListenerAdapter {
         }
 
         if (!config.allowPublicCommands) {
-            String allowedUserId = config.allowedUserId == null ? "" : config.allowedUserId.trim();
-            if (allowedUserId.isEmpty()) {
+            String allowedUserId = DiscordPingUtil.allowedUserId();
+            if (allowedUserId == null) {
                 event.reply("Command access is restricted but no Discord user ID has been configured. Please set one in the client options.")
                         .setEphemeral(true)
                         .queue();

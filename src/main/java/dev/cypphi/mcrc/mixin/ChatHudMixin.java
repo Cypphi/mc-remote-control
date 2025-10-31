@@ -1,10 +1,10 @@
 package dev.cypphi.mcrc.mixin;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
-import dev.cypphi.mcrc.discord.util.chat.ChatLogUtil;
-import dev.cypphi.mcrc.discord.util.chat.IncomingMessageTracker;
-import dev.cypphi.mcrc.discord.util.chat.LocalMessageTracker;
-import dev.cypphi.mcrc.discord.util.chat.ServerMessageTracker;
+import dev.cypphi.mcrc.util.chat.ChatLogUtil;
+import dev.cypphi.mcrc.util.chat.IncomingMessageTracker;
+import dev.cypphi.mcrc.util.chat.LocalMessageTracker;
+import dev.cypphi.mcrc.util.chat.ServerMessageTracker;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.MessageIndicator;
 import net.minecraft.network.message.MessageSignatureData;
