@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 

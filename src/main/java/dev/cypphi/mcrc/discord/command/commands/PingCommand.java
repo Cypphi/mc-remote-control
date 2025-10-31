@@ -1,9 +1,9 @@
 package dev.cypphi.mcrc.discord.command.commands;
 
 import dev.cypphi.mcrc.discord.command.SlashCommand;
-import dev.cypphi.mcrc.discord.util.DiscordMessageKind;
-import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
-import dev.cypphi.mcrc.discord.util.MessageFormatterManager;
+import dev.cypphi.mcrc.util.discord.DiscordMessageKind;
+import dev.cypphi.mcrc.util.discord.DiscordMessageSpec;
+import dev.cypphi.mcrc.util.discord.MessageFormatterManager;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class PingCommand implements SlashCommand {

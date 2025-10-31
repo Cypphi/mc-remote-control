@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util.chat;
+package dev.cypphi.mcrc.util.chat;
 
 import net.minecraft.text.Text;
 
@@ -9,11 +9,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ServerMessageTracker {
+public final class LocalMessageTracker {
     private static final Duration TTL = Duration.ofSeconds(10);
     private static final Map<String, Instant> TRACKED = new ConcurrentHashMap<>();
 
-    private ServerMessageTracker() {}
+    private LocalMessageTracker() {}
 
     public static synchronized void record(Text message) {
         String key = normalize(message);

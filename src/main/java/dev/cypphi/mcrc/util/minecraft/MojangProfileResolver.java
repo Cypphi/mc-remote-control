@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.minecraft;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

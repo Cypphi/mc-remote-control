@@ -1,9 +1,10 @@
 package dev.cypphi.mcrc.discord.notification;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
-import dev.cypphi.mcrc.discord.util.DiscordMessageKind;
-import dev.cypphi.mcrc.discord.util.DiscordMessageSpec;
-import dev.cypphi.mcrc.discord.util.DiscordMessageUtil;
+import dev.cypphi.mcrc.util.discord.DiscordMessageKind;
+import dev.cypphi.mcrc.util.discord.DiscordMessageSpec;
+import dev.cypphi.mcrc.util.discord.DiscordMessageUtil;
+import dev.cypphi.mcrc.util.discord.DiscordPingUtil;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -109,22 +110,19 @@ public final class SessionNotificationManager {
         if (config.notifyOnDisconnectMultiplayer) {
             client.execute(() -> {
                 boolean shouldPing = kicked && config.pingOnDisconnectMultiplayer;
-                String allowedUserId = config.allowedUserId == null ? "" : config.allowedUserId.trim();
 
-                StringBuilder description = new StringBuilder(kicked
+                String description = (kicked
                         ? "Kicked from multiplayer server."
                         : "Disconnected from multiplayer server.");
 
                 DiscordMessageSpec.Builder builder = DiscordMessageSpec.builder()
                         .title("Session Update")
-                        .description(description.toString())
+                        .description(description)
                         .kind(kicked ? DiscordMessageKind.WARNING : DiscordMessageKind.INFO)
                         .timestamp(true)
                         .colorOverride(DISCONNECT_COLOR);
 
-                if (shouldPing && !allowedUserId.isEmpty()) {
-                    builder.content("<@" + allowedUserId + ">");
-                }
+                DiscordPingUtil.applyAllowedUserMention(builder, shouldPing, kicked ? "multiplayer kick" : "multiplayer disconnect");
 
                 appendServerFields(builder, serverName, serverAddress, serverWasRealms);
 

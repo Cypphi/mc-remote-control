@@ -1,4 +1,4 @@
-package dev.cypphi.mcrc.discord.util;
+package dev.cypphi.mcrc.util.discord;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -115,6 +115,10 @@ public final class DiscordMessageSpec {
         public Builder content(String content) {
             this.content = content;
             return this;
+        }
+
+        public String content() {
+            return content;
         }
 
         public Builder kind(DiscordMessageKind kind) {
