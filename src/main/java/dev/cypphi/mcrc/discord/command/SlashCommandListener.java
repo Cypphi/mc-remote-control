@@ -18,7 +18,7 @@ public class SlashCommandListener extends ListenerAdapter {
         MCRCConfig config = MCRCConfig.HANDLER.instance();
 
         String configuredChannelId = config.discordChannel == null ? "" : config.discordChannel.trim();
-        if (!configuredChannelId.isEmpty() && !configuredChannelId.equals(event.getChannel().getId())) {
+        if (!config.allowCommandsAnywhere && !configuredChannelId.isEmpty() && !configuredChannelId.equals(event.getChannel().getId())) {
             event.reply("Commands are only allowed in <#" + configuredChannelId + ">.")
                     .setEphemeral(true)
                     .queue();

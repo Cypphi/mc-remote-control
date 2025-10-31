@@ -35,6 +35,8 @@ public class MCRCConfig {
     public boolean useEmbedColors = true;
     @SerialEntry
     public boolean allowPublicCommands = false;
+    @SerialEntry
+    public boolean allowCommandsAnywhere = false;
 
     // -----------------------------------------------------------------
     // Notifications
@@ -134,6 +136,17 @@ public class MCRCConfig {
                                 value -> HANDLER.instance().allowPublicCommands = value
                         )
                         .controller(option -> BooleanControllerBuilder.create(option).coloured(true))
+                        .build())
+
+                .option(Option.<Boolean>createBuilder()
+                        .name(Text.of("Allow Commands Anywhere"))
+                        .description(OptionDescription.of(Text.of("Permit slash commands outside the configured log channel.")))
+                        .binding(
+                                false,
+                                () -> HANDLER.instance().allowCommandsAnywhere,
+                                value -> HANDLER.instance().allowCommandsAnywhere = value
+                        )
+                        .controller(BooleanControllerBuilder::create)
                         .build())
 
                 .build();

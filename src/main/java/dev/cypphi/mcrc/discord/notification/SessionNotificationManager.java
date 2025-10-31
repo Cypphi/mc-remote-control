@@ -111,13 +111,13 @@ public final class SessionNotificationManager {
             client.execute(() -> {
                 boolean shouldPing = kicked && config.pingOnDisconnectMultiplayer;
 
-                StringBuilder description = new StringBuilder(kicked
+                String description = (kicked
                         ? "Kicked from multiplayer server."
                         : "Disconnected from multiplayer server.");
 
                 DiscordMessageSpec.Builder builder = DiscordMessageSpec.builder()
                         .title("Session Update")
-                        .description(description.toString())
+                        .description(description)
                         .kind(kicked ? DiscordMessageKind.WARNING : DiscordMessageKind.INFO)
                         .timestamp(true)
                         .colorOverride(DISCONNECT_COLOR);
