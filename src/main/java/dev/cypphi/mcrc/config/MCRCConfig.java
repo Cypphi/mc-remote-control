@@ -252,7 +252,7 @@ public class MCRCConfig {
 
         builder.option(Option.<Boolean>createBuilder()
                 .name(Text.of("Ping on Mention"))
-                .description(OptionDescription.of(Text.of("Mention the configured Discord user when your Minecraft username appears in chat. (May be unstable on some servers)")))
+                .description(OptionDescription.of(Text.of("Mention the configured Discord user when your Minecraft username appears in chat. (Still work in progress, may be unstable or not working altogether.)")))
                 .binding(
                         false,
                         () -> HANDLER.instance().pingOnMention,
