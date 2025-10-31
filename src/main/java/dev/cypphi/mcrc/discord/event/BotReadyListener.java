@@ -21,7 +21,7 @@ public class BotReadyListener extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         String username = resolveClientUsername();
 
-        event.getJDA().getPresence().setActivity(Activity.watching("over " + username));
+        event.getJDA().getPresence().setActivity(Activity.customStatus("Watching over " + username));
         updateBotBio(event);
 
         MinecraftRemoteControl.LOGGER.info("Discord bot ready as {}", event.getJDA().getSelfUser().getName());
