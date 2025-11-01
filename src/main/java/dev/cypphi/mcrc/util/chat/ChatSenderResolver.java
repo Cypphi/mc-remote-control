@@ -206,6 +206,7 @@ public final class ChatSenderResolver {
         if (uuid == null) {
             return null;
         }
-        return "https://mc-heads.net/avatar/" + uuid + "/128.png";
+        String sanitizedUuid = uuid.toString().replace("-", "");
+        return "https://api.mineatar.io/head/" + sanitizedUuid + "?scale=8";
     }
 }
