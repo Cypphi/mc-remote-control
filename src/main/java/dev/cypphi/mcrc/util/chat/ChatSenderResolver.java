@@ -53,7 +53,7 @@ public final class ChatSenderResolver {
 
         if (serverMessage || indicator != null) {
             if (bracketedName != null) {
-                return new ChatSenderDetails(bracketedName, null, null);
+                return new ChatSenderDetails(bracketedName, null, buildAvatarUrl(bracketedName));
             }
             return senderFromIndicator(indicator, serverMessage);
         }
@@ -70,13 +70,15 @@ public final class ChatSenderResolver {
                 return new ChatSenderDetails(profile.name(), uuid, buildAvatarUrl(uuid));
             }
             MojangProfileResolver.queueLookup(bracketedName);
+
+            return new ChatSenderDetails(bracketedName, null, buildAvatarUrl(bracketedName));
         }
 
         if (localMessage) {
             return new ChatSenderDetails("client", null, null);
         }
 
-        return new ChatSenderDetails(bracketedName != null ? bracketedName : "server", null, null);
+        return new ChatSenderDetails("server", null, null);
     }
 
     private static ChatSenderDetails resolveTrackedSender(MinecraftClient client, UUID senderUuid) {
@@ -237,6 +239,30 @@ public final class ChatSenderResolver {
         if (uuid == null) {
             return null;
         }
-        return "https://mc-heads.net/avatar/" + uuid + "/128.png";
+        String sanitizedUuid = uuid.toString().replace("-", "");
+        return "https://api.mineatar.io/head/" + sanitizedUuid + "?scale=8";
+    }
+
+    public static String buildAvatarUrl(String username) {
+        if (username == null) {
+            return null;
+        }
+
+        String sanitized = username.strip();
+        if (sanitized.isEmpty()) {
+            return null;
+        }
+
+        if ("server".equalsIgnoreCase(sanitized) || "client".equalsIgnoreCase(sanitized)) {
+            return null;
+        }
+
+        for (int i = 0; i < sanitized.length(); i++) {
+            if (!ChatNameUtil.isValidNameChar(sanitized.charAt(i))) {
+                return null;
+            }
+        }
+
+        return "https://minotar.net/helm/" + sanitized + "/64";
     }
 }

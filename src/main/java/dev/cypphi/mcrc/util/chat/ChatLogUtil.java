@@ -52,7 +52,45 @@ public final class ChatLogUtil {
     }
 
     private static String codeBlock(String content) {
-        return "```" + (content == null ? "" : content) + "```";
+        String sanitized = sanitizeContent(content);
+        int longestRun = longestBacktickRun(sanitized);
+        int fenceLength = Math.max(3, longestRun + 1);
+        String fence = "`".repeat(fenceLength);
+        return fence + "\n" + sanitized + "\n" + fence;
+    }
+
+    private static String sanitizeContent(String content) {
+        if (content == null || content.isEmpty()) {
+            return "";
+        }
+        String normalized = content
+                .replace("\r\n", "\n")
+                .replace('\r', '\n');
+        StringBuilder builder = new StringBuilder(normalized.length());
+        for (int i = 0; i < normalized.length(); i++) {
+            char ch = normalized.charAt(i);
+            if (Character.isISOControl(ch) && ch != '\n' && ch != '\t') {
+                continue;
+            }
+            builder.append(ch);
+        }
+        return builder.toString();
+    }
+
+    private static int longestBacktickRun(String input) {
+        int longest = 0;
+        int current = 0;
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == '`') {
+                current++;
+                if (current > longest) {
+                    longest = current;
+                }
+            } else {
+                current = 0;
+            }
+        }
+        return longest;
     }
 
     private static String resolveChannel(MessageIndicator indicator) {
