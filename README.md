@@ -23,7 +23,7 @@ Feel free to request additional versions to be supported :) (Join my support Dis
 
 | MCRC Version                                                            | Minecraft version |
 |-------------------------------------------------------------------------|-------------------|
-| [1.1.2](https://github.com/Cypphi/mc-remote-control/releases/tag/1.1.2) | 1.21.4 & 1.21.10  |
+| [1.1.3](https://github.com/Cypphi/mc-remote-control/releases/tag/1.1.3) | 1.21.4 & 1.21.10  |
 
 
 ## Usage
