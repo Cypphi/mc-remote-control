@@ -1,6 +1,7 @@
 package dev.cypphi.mcrc.util.chat;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
+import dev.cypphi.mcrc.util.discord.DiscordMarkdown;
 import dev.cypphi.mcrc.util.discord.DiscordMessageSpec;
 import dev.cypphi.mcrc.util.discord.DiscordMessageUtil;
 import dev.cypphi.mcrc.util.discord.DiscordPingUtil;
@@ -145,7 +146,8 @@ public final class ChatLogUtil {
         StringBuilder sb = new StringBuilder();
         boolean includeSender = details.uuid() == null || details.avatarUrl() == null;
         if (includeSender && details.name() != null && !details.name().isBlank()) {
-            sb.append("**Sender:** ").append(details.name().strip());
+            String escapedName = DiscordMarkdown.escapeInline(details.name().strip());
+            sb.append("**Sender:** ").append(escapedName);
         }
         if (content != null && !content.isBlank()) {
             if (!sb.isEmpty()) {

@@ -208,8 +208,7 @@ public final class ChatSenderResolver {
         if (uuid == null) {
             return null;
         }
-        String sanitizedUuid = uuid.toString().replace("-", "");
-        return "https://api.mineatar.io/head/" + sanitizedUuid + "?scale=8";
+        return "https://api.mineatar.io/head/" + uuid + "?scale=8";
     }
 
     public static String buildAvatarUrl(String username) {
@@ -232,6 +231,11 @@ public final class ChatSenderResolver {
             }
         }
 
-        return "https://minotar.net/helm/" + sanitized + "/64";
+        MojangProfileResolver.Profile profile = MojangProfileResolver.getCachedProfile(sanitized);
+        if (profile != null && profile.uuid() != null) {
+            return buildAvatarUrl(profile.uuid());
+        }
+        MojangProfileResolver.queueLookup(sanitized);
+        return null;
     }
 }

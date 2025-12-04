@@ -1,6 +1,7 @@
 package dev.cypphi.mcrc.discord.notification;
 
 import dev.cypphi.mcrc.config.MCRCConfig;
+import dev.cypphi.mcrc.util.discord.DiscordMarkdown;
 import dev.cypphi.mcrc.util.discord.DiscordMessageKind;
 import dev.cypphi.mcrc.util.discord.DiscordMessageSpec;
 import dev.cypphi.mcrc.util.discord.DiscordMessageUtil;
@@ -127,7 +128,7 @@ public final class SessionNotificationManager {
                 appendServerFields(builder, serverName, serverAddress, serverWasRealms);
 
                 if (kicked && reason != null && !reason.isBlank()) {
-                    builder.addField("Reason", reason, false);
+                    builder.addField("Reason", DiscordMarkdown.escapeInline(reason), false);
                 }
 
                 DiscordMessageUtil.sendMessage(builder.build());
@@ -170,13 +171,13 @@ public final class SessionNotificationManager {
 
     private static void appendServerFields(DiscordMessageSpec.Builder builder, String serverName, String serverAddress, boolean serverWasRealms) {
         if (serverName != null && !serverName.isBlank()) {
-            builder.addField("Server", serverName, true);
+            builder.addField("Server", DiscordMarkdown.escapeInline(serverName), true);
         } else if (serverWasRealms) {
             builder.addField("Server", "Minecraft Realms", true);
         }
 
         if (serverAddress != null && !serverAddress.isBlank()) {
-            builder.addField("Address", serverAddress, true);
+            builder.addField("Address", DiscordMarkdown.escapeInline(serverAddress), true);
         }
     }
 
