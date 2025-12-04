@@ -1,0 +1,62 @@
+name: Bug Report
+description: Report a problem or unexpected behavior in MC Remote Control
+labels: [bug]
+body:
+  - type: checkboxes
+    attributes:
+      label: Before submitting
+      options:
+        - label: This is a bug or unexpected behavior in MC Remote Control.
+          required: true
+        - label: I am using the latest release or have tested the current main branch.
+          required: true
+        - label: I checked existing issues and pull requests.
+          required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Briefly describe the bug.
+      placeholder: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: List the steps needed to trigger the issue.
+      placeholder: "1. ...\n2. ...\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+      placeholder: Describe the expected outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened, including errors or crashes.
+      placeholder: Describe what you observed.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Versions and platform details.
+      placeholder: Mod version, Minecraft version, OS, Java version, other mods, etc.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Screenshots
+      description: Paste relevant logs, crash reports, or screenshots.
+      placeholder: Drag and drop files, or paste text here.
+    validations:
+      required: false
