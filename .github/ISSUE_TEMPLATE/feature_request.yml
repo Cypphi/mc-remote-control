@@ -4,13 +4,13 @@ labels: [enhancement]
 body:
   - type: checkboxes
     attributes:
-      label: Pre-Flight
+      label: Before submitting
       options:
-        - label: This is realistic for the project and relevant to MC Remote Control.
+        - label: This feature makes sense for MC Remote Control.
           required: true
-        - label: I confirmed the mod does not already include this feature.
+        - label: The mod does not already include this feature.
           required: true
-        - label: I searched existing issues and pull requests.
+        - label: I checked existing issues and pull requests.
           required: true
   - type: textarea
     id: summary
