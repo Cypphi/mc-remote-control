@@ -1,7 +1,7 @@
 # MC Remote Control
 
 <div align="center">
-  <a href="https://discord.gg/2b2tism">
+  <a href="https://discord.gg/W2cEqSf8eK">
     <img src="https://img.shields.io/discord/1340108466370641960?logo=discord" alt="Discord"/>
   </a>
   <a href="https://github.com/Cypphi/mc-remote-control">
